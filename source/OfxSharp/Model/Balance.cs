@@ -4,8 +4,25 @@ using System.Xml;
 
 namespace OfxSharp
 {
+    /// <summary>LEDGERBAL, AVAILBAL</summary>
     public class Balance
     {
+        public static Balance FromXmlElement( XmlNode elementOrNull )
+        {
+            if( elementOrNull is null )
+            {
+                return null;
+            }
+
+            XmlElement balanceElement = (XmlElement)elementOrNull;
+
+            return new Balance(
+                amount: elementOrNull.RequireNonemptyValue("BALAMT").RequireParseDecimal(),
+                asOf  : elementOrNull.RequireNonemptyValue("DTASOF").RequireParseOfxDateTime()
+            );
+        }
+
+        /*
         public Balance(XmlNode ledgerNode, XmlNode avaliableNode)
         {
             String tempLedgerBalance = ledgerNode.GetValue("//BALAMT");
@@ -48,13 +65,18 @@ namespace OfxSharp
 
             this.LedgerBalanceDate = ledgerNode.GetValue("//DTASOF").MaybeParseOfxDateTime();
         }
+        */
 
-        public decimal LedgerBalance { get; set; }
+        public Balance( Decimal amount, DateTimeOffset asOf )
+        {
+            this.Amount = amount;
+            this.AsOf   = asOf;
+        }
 
-        public DateTimeOffset? LedgerBalanceDate { get; set; }
+        /// <BALAMT>BALAMT. Required.</summary>
+        public decimal Amount { get; set; }
 
-        public decimal AvaliableBalance { get; set; }
-
-        public DateTimeOffset? AvaliableBalanceDate { get; set; }
+        /// <summary>DTASOF. Required.</summary>
+        public DateTimeOffset AsOf { get; set; }
     }
 }

@@ -10,7 +10,7 @@ namespace OfxSharp
         {
         }
 
-        public Transaction(XmlNode node, string currency)
+        public Transaction(XmlNode node, string defaultCurrency)
         {
             this.TransType                     = this.GetTransactionType(node.GetValue(".//TRNTYPE"));
             this.Date                          = node.GetValue(".//DTPOSTED").MaybeParseOfxDateTime();
@@ -63,7 +63,7 @@ namespace OfxSharp
             }
             else //If currency not different, set to CURDEF
             {
-                this.Currency = currency;
+                this.Currency = defaultCurrency;
             }
 
             //If senders bank/credit card details avaliable, add

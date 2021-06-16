@@ -3,8 +3,33 @@ using System.Xml;
 
 namespace OfxSharp
 {
+    /// <summary>11.3.1 Banking Account &lt;BANKACCTFROM&gt; and &lt;BANKACCTTO&gt;</summary>
     public class Account
     {
+        public static Account FromXmlElement( XmlNode accountElementOrNull )
+        {
+            if( accountElementOrNull is null )
+            {
+                return null;
+            }
+            else if( accountElementOrNull.Name == "BANKACCTFROM" )
+            {
+                return new Account( node: accountElementOrNull, type: AccountType.BANK );
+            }
+            else if( accountElementOrNull.Name == "BANKACCTTO" )
+            {
+                return new Account( node: accountElementOrNull, type: AccountType.BANK );
+            }
+            else if( accountElementOrNull.Name == "CCACCTFROM" )
+            {
+                return new Account( node: accountElementOrNull, type: AccountType.CC );
+            }
+            else
+            {
+                throw new OfxException( message: "Unrecognized or unsupported account element: <{0}>".Fmt( accountElementOrNull.Name ) );
+            }
+        }
+
         public Account(XmlNode node, AccountType type)
         {
             this.AccountType = type;
@@ -28,8 +53,8 @@ namespace OfxSharp
             }
         }
 
-        public string AccountId { get; set; }
-        public string AccountKey { get; set; }
+        public string      AccountId   { get; set; }
+        public string      AccountKey  { get; set; }
         public AccountType AccountType { get; set; }
 
         /// <summary>Initializes information specific to bank</summary>
