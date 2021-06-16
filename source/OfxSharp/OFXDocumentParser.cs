@@ -7,6 +7,15 @@ using System.Xml;
 
 namespace OfxSharp
 {
+    public static class OfxConsts
+    {
+        public const String SignOn = @"OFX/SIGNONMSGSRSV1/SONRS";
+
+        public const String CCAccount = @"OFX/CREDITCARDMSGSRSV1/CCSTMTTRNRS/";
+
+        public const String BankAccount = @"OFX/BANKMSGSRSV1/STMTTRNRS/";
+    }
+
     public class OFXDocumentParser
     {
         public OFXDocument Import(Stream stream)
@@ -47,7 +56,7 @@ namespace OfxSharp
                 throw new OFXParseException("Currency not found");
 
             //Get sign on node from OFX file
-            var signOnNode = doc.SelectSingleNode(Resources.SignOn);
+            var signOnNode = doc.SelectSingleNode(OfxConsts.SignOn);
 
             //If exists, populate signon obj, else throw parse error
             if (signOnNode != null)
@@ -94,12 +103,12 @@ namespace OfxSharp
             switch (type)
             {
                 case AccountType.BANK:
-                    xpath = Resources.BankAccount;
+                    xpath = OfxConsts.BankAccount;
                     accountInfo = "/BANKACCTFROM";
                     break;
 
                 case AccountType.CC:
-                    xpath = Resources.CCAccount;
+                    xpath = OfxConsts.CCAccount;
                     accountInfo = "/CCACCTFROM";
                     break;
 
@@ -119,7 +128,7 @@ namespace OfxSharp
                     return xpath + "/BANKTRANLIST";
 
                 case OFXSection.SIGNON:
-                    return Resources.SignOn;
+                    return OfxConsts.SignOn;
 
                 case OFXSection.CURRENCY:
                     return xpath + "/CURDEF";
