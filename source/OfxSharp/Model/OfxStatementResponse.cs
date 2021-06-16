@@ -13,7 +13,7 @@ namespace OfxSharp
             _ = stmtrnrs.AssertIsElement( "STMTTRNRS" );
 
             XmlElement stmtrs    = stmtrnrs.RequireSingleElementChild("STMTRS");
-            XmlElement transList = stmtrs  .RequireSingleElementChild("BANKTRANSLIST");
+            XmlElement transList = stmtrs  .RequireSingleElementChild("BANKTRANLIST");
 
             //
 
@@ -34,11 +34,11 @@ namespace OfxSharp
 
         public static IEnumerable<Transaction> GetTransactions( XmlElement bankTranList, string defaultCurrency)
         {
-            _ = bankTranList.AssertIsElement("BANKTRANSLIST");
+            _ = bankTranList.AssertIsElement("BANKTRANLIST");
 
-            foreach( XmlNode stmTrn in bankTranList.SelectNodes("./STMTRN") )
+            foreach( XmlNode stmtTrn in bankTranList.SelectNodes("./STMTTRN") )
             {
-                yield return new Transaction( node: stmTrn, defaultCurrency );
+                yield return new Transaction( node: stmtTrn, defaultCurrency );
             }
         }
 

@@ -19,10 +19,10 @@ namespace OfxSharp
 
         private static Int32 ParseInt32( String text ) => Int32.Parse( text, NumberStyles.Integer, CultureInfo.InvariantCulture );
 
-        /// <summary>Returns null if <paramref name="s"/> cannot be parsed as an OFX date or datetime.</summary>
+        /// <summary>Returns null if <paramref name="s"/> cannot be parsed as an OFX date or datetime - or if the input represents a null value.</summary>
         public static DateTimeOffset? MaybeParseOfxDateTime( this String s )
         {
-            if( TryParseOfxDateTime( s, out DateTimeOffset value, errorMessage: out _ ) )
+            if( TryParseOfxDateTime( s, out DateTimeOffset? value, errorMessage: out _ ) )
             {
                 return value;
             }
@@ -35,7 +35,27 @@ namespace OfxSharp
         /// <summary>Throws a <see cref="FormatException"/> if <paramref name="s"/> cannot be parsed as an OFX date or datetime.</summary>
         public static DateTimeOffset RequireParseOfxDateTime( this String s )
         {
-            if( TryParseOfxDateTime( s, out DateTimeOffset value, out String errorMessage ) )
+            if( TryParseOfxDateTime( s, out DateTimeOffset? value, out String errorMessage ) )
+            {
+                if( value.HasValue )
+                {
+                    return value.Value;
+                }
+                else 
+                {
+                    throw new FormatException( message: "Encountered (syntactically valid) null OFX date/datetime when a non-null value is required." );
+                }
+            }
+            else
+            {
+                throw new FormatException( message: errorMessage );
+            }
+        }
+
+        /// <summary>Throws a <see cref="FormatException"/> if <paramref name="s"/> cannot be parsed as an OFX date or datetime.</summary>
+        public static DateTimeOffset? RequireOptionalParseOfxDateTime( this String s )
+        {
+            if( TryParseOfxDateTime( s, out DateTimeOffset? value, out String errorMessage ) )
             {
                 return value;
             }
@@ -45,7 +65,8 @@ namespace OfxSharp
             }
         }
 
-        public static Boolean TryParseOfxDateTime( String s, out DateTimeOffset value, out String errorMessage )
+        /// <summary>This method will accept all-zeroes as valid, in which cas e<paramref name="value"/> will be null and this method will return true (and <paramref name="errorMessage"/> will be <see langword="null"/>.</summary>
+        public static Boolean TryParseOfxDateTime( String s, out DateTimeOffset? value, out String errorMessage )
         {
             if( String.IsNullOrWhiteSpace( s ) )
             {
@@ -173,19 +194,37 @@ namespace OfxSharp
             }
         }
 
-        private static Boolean TryCreateDateTimeOffset( Match m, TimeSpan offset, out DateTimeOffset value, out String errorMessage )
+        private static Boolean TryCreateDateTimeOffset( Match m, TimeSpan offset, out DateTimeOffset? value, out String errorMessage )
         {
+            Int32 year        = m.Groups["year"   ] is Group yearGrp    && yearGrp   .Success ? ParseInt32( yearGrp   .Value ) : 0;
+            Int32 month       = m.Groups["month"  ] is Group monthGrp   && monthGrp  .Success ? ParseInt32( monthGrp  .Value ) : 0;
+            Int32 day         = m.Groups["day"    ] is Group dayGrp     && dayGrp    .Success ? ParseInt32( dayGrp    .Value ) : 0;
+            
+            Int32 hour        = m.Groups["hours"  ] is Group hoursGrp   && hoursGrp  .Success ? ParseInt32( hoursGrp  .Value ) : 0;
+            Int32 minute      = m.Groups["minutes"] is Group minutesGrp && minutesGrp.Success ? ParseInt32( minutesGrp.Value ) : 0;
+            Int32 second      = m.Groups["seconds"] is Group secondsGrp && secondsGrp.Success ? ParseInt32( secondsGrp.Value ) : 0;
+            Int32 millisecond = m.Groups["ms"     ] is Group msGrp      && msGrp     .Success ? ParseInt32( msGrp     .Value ) : 0;
+
+            // It's okay if they're all zeroes, that's a valid "null" date/datetime value:
+            // But it's not okay if any of year/month/day are zero, but the DateTimeOffset ctor will throw for us.
+            if( year == 0 && month == 0 && day == 0 && hour == 0 && minute == 0 && second == 0 && millisecond == 0 /* But ignore offset. */ )
+            {
+                value        = null;
+                errorMessage = null;
+                return true;
+            }
+
             try
             {
                 value = new DateTimeOffset(
-                    year       : m.Groups["year"   ] is Group yearGrp    && yearGrp   .Success ? ParseInt32( yearGrp   .Value ) : 0,
-                    month      : m.Groups["month"  ] is Group monthGrp   && monthGrp  .Success ? ParseInt32( monthGrp  .Value ) : 0,
-                    day        : m.Groups["day"    ] is Group dayGrp     && dayGrp    .Success ? ParseInt32( dayGrp    .Value ) : 0,
+                    year       : year,
+                    month      : month,
+                    day        : day,
                 
-                    hour       : m.Groups["hours"  ] is Group hoursGrp   && hoursGrp  .Success ? ParseInt32( hoursGrp  .Value ) : 0,
-                    minute     : m.Groups["minutes"] is Group minutesGrp && minutesGrp.Success ? ParseInt32( minutesGrp.Value ) : 0,
-                    second     : m.Groups["seconds"] is Group secondsGrp && secondsGrp.Success ? ParseInt32( secondsGrp.Value ) : 0,
-                    millisecond: m.Groups["ms"     ] is Group msGrp      && msGrp     .Success ? ParseInt32( msGrp     .Value ) : 0,
+                    hour       : hour,
+                    minute     : minute,
+                    second     : second,
+                    millisecond: millisecond,
                     offset     : offset
                 );
 
@@ -195,7 +234,7 @@ namespace OfxSharp
             catch( ArgumentException argEx )
             {
                 value        = default;
-                errorMessage = argEx.Message;
+                errorMessage = argEx.Message + ". Input value: \"" + m.ToString() + "\".";
                 return false;
             }
         }

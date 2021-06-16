@@ -18,7 +18,7 @@ namespace OfxSharp
 
             return new Balance(
                 amount: elementOrNull.RequireNonemptyValue("BALAMT").RequireParseDecimal(),
-                asOf  : elementOrNull.RequireNonemptyValue("DTASOF").RequireParseOfxDateTime()
+                asOf  : elementOrNull.RequireNonemptyValue("DTASOF").RequireOptionalParseOfxDateTime()
             );
         }
 
@@ -67,7 +67,7 @@ namespace OfxSharp
         }
         */
 
-        public Balance( Decimal amount, DateTimeOffset asOf )
+        public Balance( Decimal amount, DateTimeOffset? asOf )
         {
             this.Amount = amount;
             this.AsOf   = asOf;
@@ -76,7 +76,7 @@ namespace OfxSharp
         /// <BALAMT>BALAMT. Required.</summary>
         public decimal Amount { get; set; }
 
-        /// <summary>DTASOF. Required.</summary>
-        public DateTimeOffset AsOf { get; set; }
+        /// <summary>DTASOF. Required. (UPDATE: I the OFX 1.6 spec says LEDGERBAL and AVAILBAL's DTASOF value is required, but the other &lt;BAL&gt; element does have an optional DTASOF, I'm unsure if bradesco is really returning &quot;00000000&quot; either intentionally or because they misunderstood the spec - or if the test data was masked to hide PII.</summary>
+        public DateTimeOffset? AsOf { get; set; }
     }
 }

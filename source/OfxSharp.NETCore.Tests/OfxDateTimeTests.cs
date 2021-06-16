@@ -40,10 +40,29 @@ namespace OfxSharp.NETCore.Tests
         public void OfxDateTime_should_reject_YYYYMMDDHHMMSS_X()
         {
             //           yyyyMMddHHmmSS.XXX
-            TestParse( @"19961005132200.01", null );
-            TestParse( @"20210102030405.10", null ); 
-            TestParse( @"20210102030405.1" , null );
-            TestParse( @"20210102030405.0" , null );
+            TestParseNull( @"19961005132200.01", expectedOK: false );
+            TestParseNull( @"20210102030405.10", expectedOK: false ); 
+            TestParseNull( @"20210102030405.1" , expectedOK: false );
+            TestParseNull( @"20210102030405.0" , expectedOK: false );
+        }
+
+        [Test]
+        public void OfxDateTime_should_accept_00000000000000_as_null()
+        {
+            //               yyyyMMddHHmmSS.XXX[zz:nom]
+            TestParseNull( @"00000000000000.000[-8.00:PST]", expectedOK: true );
+
+            //               yyyyMMddHHmmSS.XXX
+            TestParseNull( @"00000000000000.000", expectedOK: true );
+
+            //               yyyyMMddHHmmSS
+            TestParseNull( @"00000000000000", expectedOK: true );
+
+            //               yyyyMMdd
+            TestParseNull( @"00000000", expectedOK: true );
+
+            //               yyyyMMddHHmmSS.XXX[zz:nom]
+            TestParseNull( @"00000000000000.000[0:PST]", expectedOK: true ); // Will this ever happen?
         }
 
         [Test]
@@ -90,22 +109,17 @@ namespace OfxSharp.NETCore.Tests
             TestParse( @"20210102030405.001[-5.50:EST]", new DateTimeOffset( year: 2021, month:  1, day: 2, hour:  3, minute:  4, second: 5, millisecond:   1, offset: TimeSpan.FromHours(-5).Subtract(TimeSpan.FromMinutes(50)) ) );
         }
 
-        private static void TestParse( String input, DateTimeOffset? expected )
+        private static void TestParse( String input, DateTimeOffset expected )
         {
-            if( expected.HasValue )
-            {
-                Boolean ok = OfxDateTime.TryParseOfxDateTime( input, value: out DateTimeOffset parsedValue, errorMessage: out String errorMessage );
-                _ = ok.Should().BeTrue();
-                _ = parsedValue.Should().Be( expected.Value );
-                _ = errorMessage.Should().BeNull();
-            }
-            else
-            {
-                Boolean ok = OfxDateTime.TryParseOfxDateTime( input, value: out DateTimeOffset parsedValue, errorMessage: out String errorMessage );
-                _ = ok.Should().BeFalse();
-                _ = parsedValue.Should().Be( default(DateTimeOffset) );
-                _ = errorMessage.Should().NotBeNullOrWhiteSpace();
-            }
+            DateTimeOffset actual = OfxDateTime.RequireParseOfxDateTime( input );
+            _ = actual.Should().Be( expected );
+        }
+
+        private static void TestParseNull( String input, Boolean expectedOK )
+        {
+            Boolean ok = OfxDateTime.TryParseOfxDateTime( input, value: out DateTimeOffset? parsedValue, errorMessage: out String errorMessage );
+            _ = ok.Should().Be( expectedOK );
+            _ = parsedValue.Should().BeNull();
         }
     }
 }

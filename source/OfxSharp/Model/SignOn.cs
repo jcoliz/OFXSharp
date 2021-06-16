@@ -12,7 +12,7 @@ namespace OfxSharp
             return new SignOnResponse(
                 statusCode    : signonMsgsrsV1.RequireNonemptyValue("//STATUS/CODE").RequireParseInt32(),
                 statusSeverity: signonMsgsrsV1.RequireNonemptyValue("//STATUS/SEVERITY"),
-                dtServer      : signonMsgsrsV1.RequireNonemptyValue("//DTSERVER").RequireParseOfxDateTime(),
+                dtServer      : signonMsgsrsV1.RequireNonemptyValue("//DTSERVER").RequireOptionalParseOfxDateTime(),
                 language      : signonMsgsrsV1.RequireNonemptyValue("//LANGUAGE"),
                 intuBid       : signonMsgsrsV1.GetOptionalValue("//INTU.BID"),
                 institution   : FinancialInstitution.FromXmlNode( signonMsgsrsV1.SelectSingleNode("//FI") )
@@ -22,7 +22,7 @@ namespace OfxSharp
         public SignOnResponse(
             Int32                statusCode,
             String               statusSeverity,
-            DateTimeOffset       dtServer,
+            DateTimeOffset?      dtServer,
             String               language,
             String               intuBid     = null,
             FinancialInstitution institution = null
@@ -44,8 +44,8 @@ namespace OfxSharp
         /// <summary>Required.<br />OFX/SIGNONMSGSRSV1/SONRS/STATUS/SEVERITY</summary>
         public string StatusSeverity { get; set; }
 
-        /// <summary>Required.<br />OFX/SIGNONMSGSRSV1/SONRS/DTSERVER</summary>
-        public DateTimeOffset DTServer { get; set; }
+        /// <summary>Required. All-zero (i.e. null) values accepted)<br />OFX/SIGNONMSGSRSV1/SONRS/DTSERVER</summary>
+        public DateTimeOffset? DTServer { get; set; }
 
         /// <summary>Required.<br />OFX/SIGNONMSGSRSV1/SONRS/LANGUAGE</summary>
         public string Language { get; set; }
