@@ -70,7 +70,7 @@ namespace OfxSharp
 
         public OFXTransactionType TransType { get; set; }
 
-        public DateTime? Date { get; set; }
+        public DateTimeOffset? Date { get; set; }
 
         public decimal Amount { get; set; }
 
@@ -78,9 +78,9 @@ namespace OfxSharp
 
         public string Name { get; set; }
 
-        public DateTime? TransactionInitializationDate { get; set; }
+        public DateTimeOffset? TransactionInitializationDate { get; set; }
 
-        public DateTime? FundAvaliabilityDate { get; set; }
+        public DateTimeOffset? FundAvaliabilityDate { get; set; }
 
         public string Memo { get; set; }
 

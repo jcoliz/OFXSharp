@@ -20,11 +20,11 @@ namespace OfxSharp
             {
                 AvaliableBalance = 0;
 
-                // ***** this member veriable should be a nullable DateTime, declared as:
-                // public DateTime? LedgerBalanceDate { get; set; }
+                // ***** this member veriable should be a nullable DateTimeOffset, declared as:
+                // public DateTimeOffset? LedgerBalanceDate { get; set; }
                 // and next line could be:
                 // AvaliableBalanceDate = null;
-                AvaliableBalanceDate = new DateTime();
+                AvaliableBalanceDate = new DateTimeOffset();
             }
             else
             {
@@ -34,18 +34,18 @@ namespace OfxSharp
                     AvaliableBalance = Convert.ToDecimal(tempAvaliableBalance, CultureInfo.InvariantCulture);
                 else
                     throw new OFXParseException("Avaliable balance has not been set");
-                AvaliableBalanceDate = avaliableNode.GetValue("//DTASOF").ToDate();
+                AvaliableBalanceDate = avaliableNode.GetValue("//DTASOF").MaybeParseOfxDateTime();
             }
 
-            LedgerBalanceDate = ledgerNode.GetValue("//DTASOF").ToDate();
+            LedgerBalanceDate = ledgerNode.GetValue("//DTASOF").MaybeParseOfxDateTime();
         }
 
         public decimal LedgerBalance { get; set; }
 
-        public DateTime? LedgerBalanceDate { get; set; }
+        public DateTimeOffset? LedgerBalanceDate { get; set; }
 
         public decimal AvaliableBalance { get; set; }
 
-        public DateTime? AvaliableBalanceDate { get; set; }
+        public DateTimeOffset? AvaliableBalanceDate { get; set; }
     }
 }

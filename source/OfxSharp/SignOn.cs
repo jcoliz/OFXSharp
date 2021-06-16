@@ -7,16 +7,16 @@ namespace OfxSharp
     {
         public SignOn(XmlNode node)
         {
-            StatusCode = Convert.ToInt32(node.GetValue("//CODE"));
-            StatusSeverity = node.GetValue("//SEVERITY");
-            DtServer = node.GetValue("//DTSERVER").ToDate();
-            Language = node.GetValue("//LANGUAGE");
-            IntuBid = node.GetValue("//INTU.BID");
+            this.StatusCode = Convert.ToInt32(node.GetValue("//CODE"));
+            this.StatusSeverity = node.GetValue("//SEVERITY");
+            this.DtServer = node.GetValue("//DTSERVER").MaybeParseOfxDateTime();
+            this.Language = node.GetValue("//LANGUAGE");
+            this.IntuBid = node.GetValue("//INTU.BID");
         }
 
         public string StatusSeverity { get; set; }
 
-        public DateTime? DtServer { get; set; }
+        public DateTimeOffset? DtServer { get; set; }
 
         public int StatusCode { get; set; }
 

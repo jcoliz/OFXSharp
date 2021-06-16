@@ -138,10 +138,13 @@ namespace OfxSharp
         {
             var xpath = GetXPath(ofxDocument.AccType, OFXSection.TRANSACTIONS);
 
-            ofxDocument.StatementStart = doc.GetValue(xpath + "//DTSTART").ToDate();
-            ofxDocument.StatementEnd = doc.GetValue(xpath + "//DTEND").ToDate();
+            ofxDocument.StatementStartValue = doc.GetValue(xpath + "//DTSTART");
+            ofxDocument.StatementStart      = ofxDocument.StatementStartValue.MaybeParseOfxDateTime();
 
-            var transactionNodes = doc.SelectNodes(xpath + "//STMTTRN");
+            ofxDocument.StatementEndValue   = doc.GetValue(xpath + "//DTEND");
+            ofxDocument.StatementEnd        = ofxDocument.StatementEndValue.MaybeParseOfxDateTime();
+
+            XmlNodeList transactionNodes = doc.SelectNodes(xpath + "//STMTTRN");
 
             ofxDocument.Transactions = new List<Transaction>();
 

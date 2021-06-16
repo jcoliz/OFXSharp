@@ -5,9 +5,15 @@ namespace OfxSharp
 {
     public class OFXDocument
     {
-        public DateTime? StatementStart { get; set; }
+        /// <summary>Raw value for <see cref="StatementStart"/>.</summary>
+        public string StatementStartValue { get; set; }
 
-        public DateTime? StatementEnd { get; set; }
+        public DateTimeOffset? StatementStart { get; set; }
+
+        /// <summary>Raw value for <see cref="StatementEnd"/>.</summary>
+        public string StatementEndValue { get; set; }
+
+        public DateTimeOffset? StatementEnd { get; set; }
 
         public AccountType AccType { get; set; }
 
