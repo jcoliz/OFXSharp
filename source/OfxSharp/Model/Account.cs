@@ -32,9 +32,7 @@ namespace OfxSharp
         public string AccountKey { get; set; }
         public AccountType AccountType { get; set; }
 
-        /// <summary>
-        ///     Initializes information specific to bank
-        /// </summary>
+        /// <summary>Initializes information specific to bank</summary>
         private void InitializeBank(XmlNode node)
         {
             this.BankId = node.GetValue("//BANKID");
@@ -46,11 +44,11 @@ namespace OfxSharp
             //Check that it has been set
             if (string.IsNullOrEmpty(bankAccountType))
             {
-                throw new OFXParseException("Bank Account type unknown");
+                throw new OfxParseException("Bank Account type unknown");
             }
 
             //Set bank account enum
-            this._bankAccountType = bankAccountType.GetBankAccountType();
+            this._bankAccountType = bankAccountType.ParseEnum<BankAccountType>();
         }
 
         #region Bank Only
@@ -73,12 +71,12 @@ namespace OfxSharp
 
         private void InitializeAp(XmlNode node)
         {
-            throw new OFXParseException("AP Account type not supported");
+            throw new OfxParseException("AP Account type not supported");
         }
 
         private void InitializeAr(XmlNode node)
         {
-            throw new OFXParseException("AR Account type not supported");
+            throw new OfxParseException("AR Account type not supported");
         }
 
         #endregion Account types not supported

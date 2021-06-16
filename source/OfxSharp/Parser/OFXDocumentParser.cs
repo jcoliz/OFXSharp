@@ -16,9 +16,9 @@ namespace OfxSharp
         public const String BankAccount = @"OFX/BANKMSGSRSV1/STMTTRNRS/";
     }
 
-    public class OFXDocumentParser
+    public class OfxDocumentParser
     {
-        public OFXDocument Import(Stream stream)
+        public OfxDocument Import(Stream stream)
         {
             using ( StreamReader reader = new StreamReader(stream, Encoding.Default))
             {
@@ -26,12 +26,12 @@ namespace OfxSharp
             }
         }
 
-        public OFXDocument Import(string ofx)
+        public OfxDocument Import(string ofx)
         {
             return this.ParseOfxDocument(ofx);
         }
 
-        private OFXDocument ParseOfxDocument(string ofxString)
+        private OfxDocument ParseOfxDocument(string ofxString)
         {
             //If OFX file in SGML format, convert to XML
             if (!this.IsXmlVersion(ofxString))
@@ -42,9 +42,9 @@ namespace OfxSharp
             return this.Parse(ofxString);
         }
 
-        private OFXDocument Parse(string ofxString)
+        private OfxDocument Parse(string ofxString)
         {
-            OFXDocument ofx = new OFXDocument { AccType = this.GetAccountType(ofxString) };
+            OfxDocument ofx = new OfxDocument { AccType = this.GetAccountType(ofxString) };
 
             //Load into xml document
             XmlDocument doc = new XmlDocument();
@@ -58,7 +58,7 @@ namespace OfxSharp
             }
             else
             {
-                throw new OFXParseException("Currency not found");
+                throw new OfxParseException("Currency not found");
             }
 
             //Get sign on node from OFX file
@@ -71,7 +71,7 @@ namespace OfxSharp
             }
             else
             {
-                throw new OFXParseException("Sign On information not found");
+                throw new OfxParseException("Sign On information not found");
             }
 
             //Get Account information for ofx doc
@@ -84,7 +84,7 @@ namespace OfxSharp
             }
             else
             {
-                throw new OFXParseException("Account information not found");
+                throw new OfxParseException("Account information not found");
             }
 
             //Get list of transactions
@@ -102,7 +102,7 @@ namespace OfxSharp
             }
             else
             {
-                throw new OFXParseException("Balance information not found");
+                throw new OfxParseException("Balance information not found");
             }
 
             return ofx;
@@ -113,7 +113,7 @@ namespace OfxSharp
         /// </summary>
         /// <param name="type">Account type</param>
         /// <param name="section">Section of OFX document, e.g. Transaction Section</param>
-        /// <exception cref="OFXException">Thrown in account type not supported</exception>
+        /// <exception cref="OfxException">Thrown in account type not supported</exception>
         private string GetXPath(AccountType type, OFXSection section)
         {
             string xpath, accountInfo;
@@ -131,7 +131,7 @@ namespace OfxSharp
                     break;
 
                 default:
-                    throw new OFXException("Account Type not supported. Account type " + type);
+                    throw new OfxException("Account Type not supported. Account type " + type);
             }
 
             switch (section)
@@ -152,7 +152,7 @@ namespace OfxSharp
                     return xpath + "/CURDEF";
 
                 default:
-                    throw new OFXException("Unknown section found when retrieving XPath. Section " + section);
+                    throw new OfxException("Unknown section found when retrieving XPath. Section " + section);
             }
         }
 
@@ -161,7 +161,7 @@ namespace OfxSharp
         /// </summary>
         /// <param name="doc">OFX document</param>
         /// <returns>List of transactions found in OFX document</returns>
-        private void ImportTransations(OFXDocument ofxDocument, XmlDocument doc)
+        private void ImportTransations(OfxDocument ofxDocument, XmlDocument doc)
         {
             String xpath = this.GetXPath(ofxDocument.AccType, OFXSection.TRANSACTIONS);
 
@@ -198,7 +198,7 @@ namespace OfxSharp
                 return AccountType.BANK;
             }
 
-            throw new OFXException("Unsupported Account Type");
+            throw new OfxException("Unsupported Account Type");
         }
 
         /// <summary>
@@ -270,42 +270,42 @@ namespace OfxSharp
         {
             if (header[0] != "OFXHEADER:100")
             {
-                throw new OFXParseException("Incorrect header format");
+                throw new OfxParseException("Incorrect header format");
             }
 
             if (header[1] != "DATA:OFXSGML")
             {
-                throw new OFXParseException("Data type unsupported: " + header[1] + ". OFXSGML required");
+                throw new OfxParseException("Data type unsupported: " + header[1] + ". OFXSGML required");
             }
 
             if (header[2] != "VERSION:102")
             {
-                throw new OFXParseException("OFX version unsupported. " + header[2]);
+                throw new OfxParseException("OFX version unsupported. " + header[2]);
             }
 
             if (header[3] != "SECURITY:NONE")
             {
-                throw new OFXParseException("OFX security unsupported");
+                throw new OfxParseException("OFX security unsupported");
             }
 
             if (header[4] != "ENCODING:USASCII")
             {
-                throw new OFXParseException("ASCII Format unsupported:" + header[4]);
+                throw new OfxParseException("ASCII Format unsupported:" + header[4]);
             }
 
             if (header[5] != "CHARSET:1252")
             {
-                throw new OFXParseException("Charecter set unsupported:" + header[5]);
+                throw new OfxParseException("Charecter set unsupported:" + header[5]);
             }
 
             if (header[6] != "COMPRESSION:NONE")
             {
-                throw new OFXParseException("Compression unsupported");
+                throw new OfxParseException("Compression unsupported");
             }
 
             if (header[7] != "OLDFILEUID:NONE")
             {
-                throw new OFXParseException("OLDFILEUID incorrect");
+                throw new OfxParseException("OLDFILEUID incorrect");
             }
         }
 

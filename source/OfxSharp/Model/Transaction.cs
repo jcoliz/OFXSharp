@@ -23,7 +23,7 @@ namespace OfxSharp
             }
             catch (Exception ex)
             {
-                throw new OFXParseException("Transaction Amount unknown", ex);
+                throw new OfxParseException("Transaction Amount unknown", ex);
             }
 
             try
@@ -32,7 +32,7 @@ namespace OfxSharp
             }
             catch (Exception ex)
             {
-                throw new OFXParseException("Transaction ID unknown", ex);
+                throw new OfxParseException("Transaction ID unknown", ex);
             }
 
             this.IncorrectTransactionId = node.GetValue(".//CORRECTFITID");
@@ -77,7 +77,7 @@ namespace OfxSharp
             }
         }
 
-        public OFXTransactionType TransType { get; set; }
+        public OfxTransactionType TransType { get; set; }
 
         public DateTimeOffset? Date { get; set; }
 
@@ -116,9 +116,9 @@ namespace OfxSharp
         /// </summary>
         /// <param name="transactionType">string version of transaction type</param>
         /// <returns>Enum version of given transaction type string</returns>
-        private OFXTransactionType GetTransactionType(string transactionType)
+        private OfxTransactionType GetTransactionType(string transactionType)
         {
-            return (OFXTransactionType)Enum.Parse(typeof(OFXTransactionType), transactionType);
+            return (OfxTransactionType)Enum.Parse(typeof(OfxTransactionType), transactionType);
         }
 
         /// <summary>

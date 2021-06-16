@@ -16,7 +16,7 @@ namespace OfxSharp
             }
             else
             {
-                throw new OFXParseException("Ledger balance has not been set");
+                throw new OfxParseException("Ledger balance has not been set");
             }
 
             // ***** OFX files from my bank don't have the 'avaliableNode' node, so i manage a null situation
@@ -40,7 +40,7 @@ namespace OfxSharp
                 }
                 else
                 {
-                    throw new OFXParseException("Avaliable balance has not been set");
+                    throw new OfxParseException("Avaliable balance has not been set");
                 }
 
                 this.AvaliableBalanceDate = avaliableNode.GetValue("//DTASOF").MaybeParseOfxDateTime();

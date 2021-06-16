@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace OfxSharp
 {
-    public class OFXDocument
+    public class OfxDocument
     {
         /// <summary>Raw value for <see cref="StatementStart"/>.</summary>
         public string StatementStartValue { get; set; }

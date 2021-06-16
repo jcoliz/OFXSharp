@@ -16,8 +16,4 @@
   <ItemGroup>
     <PackageReference Include="ReadSharp.Ports.SgmlReader.Core" Version="1.0.0" />
   </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="Types\" />
-  </ItemGroup>
 </Project>

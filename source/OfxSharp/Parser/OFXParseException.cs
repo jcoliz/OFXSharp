@@ -4,24 +4,21 @@ using System.Runtime.Serialization;
 namespace OfxSharp
 {
     [Serializable]
-    public class OFXParseException : OFXException
+    public class OfxParseException : OfxException
     {
-        public OFXParseException()
+        public OfxParseException()
         {
         }
 
-        public OFXParseException(string message) : base(message)
+        public OfxParseException(string message) : base(message)
         {
         }
 
-        public OFXParseException(string message, Exception inner) : base(message, inner)
+        public OfxParseException(string message, Exception inner) : base(message, inner)
         {
         }
 
-        protected OFXParseException(
-            SerializationInfo info,
-            StreamingContext context)
-            : base(info, context)
+        protected OfxParseException(SerializationInfo info, StreamingContext context) : base(info, context)
         {
         }
     }
