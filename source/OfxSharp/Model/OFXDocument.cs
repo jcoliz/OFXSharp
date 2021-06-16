@@ -1,11 +1,41 @@
 using System;
 using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using System.Threading.Tasks;
 using System.Xml;
+
+using ReadSharp.Ports.Sgml;
 
 namespace OfxSharp
 {
     public class OfxDocument
     {
+        public static OfxDocument FromXmlElement( XmlElement ofxElement )
+        {
+            _ = ofxElement.AssertIsElement( "OFX" );
+
+            XmlElement signOnMessageResponse = ofxElement.RequireSingleElementChild("SIGNONMSGSRSV1");
+            XmlElement bankMessageResponse   = ofxElement.RequireSingleElementChild("BANKMSGSRSV1");
+
+            return new OfxDocument(
+                signOn    : SignOnResponse.FromXmlElement( signOnMessageResponse ),
+                statements: GetStatements( bankMessageResponse )
+            );
+        }
+
+        public static IEnumerable<OfxStatementResponse> GetStatements( XmlElement bankMessageResponse )
+        {
+            _ = bankMessageResponse.AssertIsElement( "BANKMSGSRSV1" );
+
+            foreach( XmlNode stmTrnResponse in bankMessageResponse.SelectNodes("./STMTTRNRS") )
+            {
+                XmlElement stmtTrnRs = stmTrnResponse.AssertIsElement("STMTTRNRS");
+
+                yield return OfxStatementResponse.FromSTMTTRNRS( stmtTrnRs );
+            }
+        }
+
         public OfxDocument(
             SignOnResponse                    signOn,
             IEnumerable<OfxStatementResponse> statements
@@ -21,95 +51,180 @@ namespace OfxSharp
 
         /// <summary>BANKMSGSRSV1/STMTTRNRS</summary>
         public List<OfxStatementResponse> Statements { get; } = new List<OfxStatementResponse>();
+
+        //
+
+        public Boolean HasSingleStatement( out SingleStatementOfxDocument doc )
+        {
+            if( this.Statements.Count == 1 )
+            {
+                doc = new SingleStatementOfxDocument( this );
+                return true;
+            }
+            else
+            {
+                doc = default;
+                return false;
+            }
+        }
     }
 
-    /// <summary>Flattened view of STMTTRNRS and STMTRS. 11.4.1.2 Response &lt;STMTRS&gt;<br />
-    /// &quot;The <STMTRS> response must appear within a &lt;STMTTRNRS&gt; transaction wrapper.&quot; (the &quot;transaction&quot; refers to the OFX request/response transaction - not a bank transaction).</summary>
-    public class OfxStatementResponse
+    public class SingleStatementOfxDocument
     {
-        public static OfxStatementResponse FromSTMTTRNRS( XmlElement stmtrnrs )
+        public SingleStatementOfxDocument( OfxDocument ofx )
         {
-            _ = stmtrnrs.AssertIsElement( "STMTTRNRS" );
+            this.Ofx             = ofx ?? throw new ArgumentNullException( nameof( ofx ) );
 
-            XmlElement stmtrs    = stmtrnrs.RequireSingleElementChild("STMTRS");
-            XmlElement transList = stmtrs  .RequireSingleElementChild("BANKTRANSLIST");
-
-            //
-
-            String defaultCurrency = stmtrs.RequireNonemptyValue("CURDEF");
-
-            return new OfxStatementResponse(
-                trnUid           : stmtrnrs.RequireNonemptyValue("TRNUID").RequireParseInt32(),
-                responseStatus   : OfxStatus.FromXmlElement( stmtrnrs.RequireSingleElementChild("STATUS") ),
-                defaultCurrency  : defaultCurrency,
-                accountFrom      : Account.FromXmlElement( stmtrs.GetSingleElementChildOrNull("BANKACCTFROM") ),
-                transactionsStart: transList.RequireNonemptyValue("DTSTART").RequireParseOfxDateTime(),
-                transactionsEnd  : transList.RequireNonemptyValue("DTEND"  ).RequireParseOfxDateTime(),
-                transactions     : GetTransactions( transList, defaultCurrency ),
-                ledgerBalance    : Balance.FromXmlElement( stmtrs.SelectSingleNode("LEDGERBAL") ),
-                availableBalance : Balance.FromXmlElement( stmtrs.SelectSingleNode("AVAILBAL" ) )
-            );
+            this.SingleStatement = ofx.Statements.Single();
         }
 
-        public static IEnumerable<Transaction> GetTransactions( XmlElement bankTranList, string defaultCurrency)
-        {
-            _ = bankTranList.AssertIsElement("BANKTRANSLIST");
+        public OfxDocument Ofx { get; }
 
-            foreach( XmlNode stmTrn in bankTranList.SelectNodes("./STMTRN") )
+        public OfxStatementResponse SingleStatement { get; }
+
+        public DateTimeOffset             StatementStart => this.SingleStatement.TransactionsStart;
+        public DateTimeOffset             StatementEnd   => this.SingleStatement.TransactionsEnd;
+        public Account                    Account        => this.SingleStatement.AccountFrom;
+        public IReadOnlyList<Transaction> Transactions   => this.SingleStatement.Transactions;
+    }
+
+    public static class OfxDocumentReader
+    {
+        private enum State
+        {
+            BeforeOfxHeader,
+            InOfxHeader,
+            StartOfOfxSgml
+        }
+
+        #region Non-async
+
+        public static OfxDocument FromSgmlFile( String filePath )
+        {
+            using( FileStream fs = new FileStream( filePath, FileMode.Open, FileAccess.Read, FileShare.Read, bufferSize: 4096, FileOptions.SequentialScan ) )
             {
-                yield return new Transaction( node: stmTrn, defaultCurrency );
+                return FromSgmlFile( fs );
             }
         }
 
-        public OfxStatementResponse(
-            Int32                    trnUid,
-            OfxStatus                responseStatus,
-            String                   defaultCurrency,
-            Account                  accountFrom,
-            DateTimeOffset           transactionsStart,
-            DateTimeOffset           transactionsEnd,
-            IEnumerable<Transaction> transactions,
-            Balance                  ledgerBalance,
-            Balance                  availableBalance
-        )
+        public static OfxDocument FromSgmlFile( Stream stream )
         {
-            this.OfxTransactionUniqueId = trnUid;
-            this.ResponseStatus         = responseStatus   ?? throw new ArgumentNullException( nameof( responseStatus ) );
-            this.DefaultCurrency        = defaultCurrency  ?? throw new ArgumentNullException( nameof( defaultCurrency ) );
-            this.AccountFrom            = accountFrom      ?? throw new ArgumentNullException( nameof( accountFrom ) );
-            this.TransactionsStart      = transactionsStart;
-            this.TransactionsEnd        = transactionsEnd;
-            this.LedgerBalance          = ledgerBalance    ?? throw new ArgumentNullException( nameof( ledgerBalance ) );
-            this.AvailableBalance       = availableBalance;
-
-            this.Transactions.AddRange( transactions );
+            using( StreamReader rdr = new StreamReader( stream ) )
+            {
+                return FromSgmlFile( reader: rdr );
+            }
         }
 
-        /// <summary>STMTTRNRS/TRNUID (OFX Request/Response Transaction ID - this is unrelated to bank transactions).</summary>
-        public Int32 OfxTransactionUniqueId { get; set; }
+        public static OfxDocument FromSgmlFile( TextReader reader )
+        {
+            if( reader is null ) throw new ArgumentNullException( nameof( reader ) );
 
-        /// <summary>STMTTRNRS/STATUS</summary>
-        public OfxStatus ResponseStatus { get; set; }
+            // Read the header:
+            IReadOnlyDictionary<String,String> header = ReadOfxFileHeaderUntilStartOfSgml( reader );
 
-        /// <summary>STMTTRNRS/STMTRS/CURDEF</summary>
-        public String DefaultCurrency { get; set; }
+            XmlDocument doc = ConvertSgmlToXml( reader );
 
-        /// <summary>STMTTRNRS/STMTRS/BANKACCTFROM</summary>
-        public Account AccountFrom { get; set; }
+            return OfxDocument.FromXmlElement( doc.DocumentElement );
+        }
 
-        /// <summary>STMTTRNRS/STMTRS/BANKTRANLIST/DTSTART</summary>
-        public DateTimeOffset TransactionsStart { get; set; }
+        private static IReadOnlyDictionary<String,String> ReadOfxFileHeaderUntilStartOfSgml( TextReader reader )
+        {
+            Dictionary<String,String> sgmlHeaderValues = new Dictionary<String,String>();
 
-        /// <summary>STMTTRNRS/STMTRS/BANKTRANLIST/DTEND</summary>
-        public DateTimeOffset TransactionsEnd   { get; set; }
+            //
 
-        /// <summary>STMTTRNRS/STMTRS/BANKTRANLIST</summary>
-        public List<Transaction> Transactions { get; } = new List<Transaction>();
+            State state = State.BeforeOfxHeader;
+            String line;
 
-        /// <summary>STMTTRNRS/STMTRS/LEDGERBAL. Required.</summary>
-        public Balance LedgerBalance { get; set; }
+            while( ( line = reader.ReadLine() ) != null )
+            {
+                switch( state )
+                {
+                case State.BeforeOfxHeader:
+                    if( line.IsSet() )
+                    {
+                        //state = State.InOfxHeader;
+                        return sgmlHeaderValues;
+                    }
+                    break;
 
-        /// <summary>STMTTRNRS/STMTRS/AVAILBAL. Optional. Can be null.</summary>
-        public Balance AvailableBalance { get; set; }
+                case State.InOfxHeader:
+
+                    if( line.IsEmpty() )
+                    {
+                        state = State.StartOfOfxSgml;
+                    }
+                    else
+                    {
+                        String[] parts = line.Split(':');
+                        String name  = parts[0];
+                        String value = parts[1];
+                        sgmlHeaderValues.Add( name, value );
+                    }
+
+                    break;
+
+                case State.StartOfOfxSgml:
+                    throw new InvalidOperationException( "This state should never be entered." );
+                }
+            }
+
+            throw new InvalidOperationException( "Reached end of OFX file without encountering end of OFX header." );
+        }
+
+        private static XmlDocument ConvertSgmlToXml( TextReader reader )
+        {
+            // Convert SGML to XML:
+            try
+            {
+                SgmlReader sgmlReader = new SgmlReader();
+                sgmlReader.InputStream = reader;
+                sgmlReader.DocType     = "OFX"; // <-- This causes DTD magic to happen. I don't know where it gets the DTD from though.
+
+                // https://stackoverflow.com/questions/1346995/how-to-create-a-xmldocument-using-xmlwriter-in-net
+                XmlDocument doc = new XmlDocument(); 
+                using( XmlWriter xmlWriter = doc.CreateNavigator().AppendChild() ) 
+                { 
+                    while( !sgmlReader.EOF )
+                    {
+                        xmlWriter.WriteNode( sgmlReader, defattr: true );
+                    }
+                }
+                
+                return doc;
+            }
+            catch( Exception ex )
+            {
+                throw;
+            }
+        }
+
+        #endregion
+
+        #region Async
+
+        public static async Task<OfxDocument> FromSgmlFileAsync( Stream stream )
+        {
+            using( StreamReader rdr = new StreamReader( stream ) )
+            {
+                return await FromSgmlFileAsync( reader: rdr ).ConfigureAwait(false);
+            }
+        }
+
+        public static async Task<OfxDocument> FromSgmlFileAsync( TextReader reader )
+        {
+            if( reader is null ) throw new ArgumentNullException( nameof( reader ) );
+
+            // HACK: Honestly, it's easier just to buffer it all first:
+
+            String text = await reader.ReadToEndAsync().ConfigureAwait(false);
+
+            using( StringReader sr = new StringReader( text ) )
+            {
+                return FromSgmlFile( sr );
+            }
+        }
+
+        #endregion
     }
 }
