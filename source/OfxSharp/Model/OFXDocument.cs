@@ -124,6 +124,10 @@ namespace OfxSharp
 
             XmlDocument doc = ConvertSgmlToXml( reader );
 
+            #if DEBUG
+            String xmlDocString = doc.ToXmlString();
+            #endif
+
             return OfxDocument.FromXmlElement( doc.DocumentElement );
         }
 
@@ -143,8 +147,7 @@ namespace OfxSharp
                 case State.BeforeOfxHeader:
                     if( line.IsSet() )
                     {
-                        //state = State.InOfxHeader;
-                        return sgmlHeaderValues;
+                        state = State.InOfxHeader;
                     }
                     break;
 
@@ -152,7 +155,8 @@ namespace OfxSharp
 
                     if( line.IsEmpty() )
                     {
-                        state = State.StartOfOfxSgml;
+                        //state = State.StartOfOfxSgml;
+                        return sgmlHeaderValues;
                     }
                     else
                     {
@@ -180,6 +184,7 @@ namespace OfxSharp
                 SgmlReader sgmlReader = new SgmlReader();
                 sgmlReader.InputStream = reader;
                 sgmlReader.DocType     = "OFX"; // <-- This causes DTD magic to happen. I don't know where it gets the DTD from though.
+                sgmlReader.Dtd = new SgmlDtd(  )
 
                 // https://stackoverflow.com/questions/1346995/how-to-create-a-xmldocument-using-xmlwriter-in-net
                 XmlDocument doc = new XmlDocument(); 

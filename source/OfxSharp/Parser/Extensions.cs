@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Globalization;
+using System.IO;
 using System.Text;
 using System.Xml;
 
@@ -184,6 +185,32 @@ namespace OfxSharp
             {
                 return null;
             }
+        }
+
+        private static readonly XmlWriterSettings _xmlSettings = new XmlWriterSettings()
+        {
+            NewLineHandling = NewLineHandling.Replace,
+            NewLineChars    = "\r\n",
+            Indent          = true,
+            IndentChars     = "\t",
+            ConformanceLevel = ConformanceLevel.Document,
+        };
+
+        public static String ToXmlString( this XmlDocument doc )
+        {
+            String xmlString;
+
+            using( StringWriter stringWriter = new StringWriter() )
+            using( XmlWriter xmlTextWriter = XmlWriter.Create( stringWriter, _xmlSettings ) )
+            {
+                doc.WriteTo( xmlTextWriter );
+
+                xmlTextWriter.Flush();
+
+                xmlString = stringWriter.ToString();
+            }
+
+            return xmlString;
         }
 	}
 }
