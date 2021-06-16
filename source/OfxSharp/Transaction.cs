@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Globalization;
 using System.Xml;
 
@@ -12,14 +12,14 @@ namespace OfxSharp
 
         public Transaction(XmlNode node, string currency)
         {
-            TransType = GetTransactionType(node.GetValue(".//TRNTYPE"));
-            Date = node.GetValue(".//DTPOSTED").ToDate();
-            TransactionInitializationDate = node.GetValue(".//DTUSER").ToDate();
-            FundAvaliabilityDate = node.GetValue(".//DTAVAIL").ToDate();
+            this.TransType                     = GetTransactionType(node.GetValue(".//TRNTYPE"));
+            this.Date                          = node.GetValue(".//DTPOSTED").MaybeParseOfxDateTime();
+            this.TransactionInitializationDate = node.GetValue(".//DTUSER").MaybeParseOfxDateTime();
+            this.FundAvaliabilityDate          = node.GetValue(".//DTAVAIL").MaybeParseOfxDateTime();
 
             try
             {
-                Amount = Convert.ToDecimal(node.GetValue(".//TRNAMT"), CultureInfo.InvariantCulture);
+                this.Amount = Convert.ToDecimal(node.GetValue(".//TRNAMT"), CultureInfo.InvariantCulture);
             }
             catch (Exception ex)
             {
@@ -28,44 +28,53 @@ namespace OfxSharp
 
             try
             {
-                TransactionId = node.GetValue(".//FITID");
+                this.TransactionId = node.GetValue(".//FITID");
             }
             catch (Exception ex)
             {
                 throw new OFXParseException("Transaction ID unknown", ex);
             }
 
-            IncorrectTransactionId = node.GetValue(".//CORRECTFITID");
+            this.IncorrectTransactionId = node.GetValue(".//CORRECTFITID");
 
-            //If Transaction Correction Action exists, populate
-            var tempCorrectionAction = node.GetValue(".//CORRECTACTION");
+			//If Transaction Correction Action exists, populate
+			string tempCorrectionAction = node.GetValue(".//CORRECTACTION");
 
-            TransactionCorrectionAction = !string.IsNullOrEmpty(tempCorrectionAction)
+            this.TransactionCorrectionAction = !string.IsNullOrEmpty(tempCorrectionAction)
                 ? GetTransactionCorrectionType(tempCorrectionAction)
                 : TransactionCorrectionType.NA;
 
-            ServerTransactionId = node.GetValue(".//SRVRTID");
-            CheckNum = node.GetValue(".//CHECKNUM");
-            ReferenceNumber = node.GetValue(".//REFNUM");
-            Sic = node.GetValue(".//SIC");
-            PayeeId = node.GetValue(".//PAYEEID");
-            Name = node.GetValue(".//NAME");
-            Memo = node.GetValue(".//MEMO");
+            this.ServerTransactionId = node.GetValue(".//SRVRTID");
+            this.CheckNum = node.GetValue(".//CHECKNUM");
+            this.ReferenceNumber = node.GetValue(".//REFNUM");
+            this.Sic = node.GetValue(".//SIC");
+            this.PayeeId = node.GetValue(".//PAYEEID");
+            this.Name = node.GetValue(".//NAME");
+            this.Memo = node.GetValue(".//MEMO");
 
             //If differenct currency to CURDEF, populate currency
-            if (NodeExists(node, ".//CURRENCY"))
-                Currency = node.GetValue(".//CURRENCY");
-            else if (NodeExists(node, ".//ORIGCURRENCY"))
-                Currency = node.GetValue(".//ORIGCURRENCY");
-            //If currency not different, set to CURDEF
-            else
-                Currency = currency;
+            if (this.NodeExists(node, ".//CURRENCY"))
+            {
+                this.Currency = node.GetValue(".//CURRENCY");
+            }
+            else if (this.NodeExists(node, ".//ORIGCURRENCY"))
+            {
+                this.Currency = node.GetValue(".//ORIGCURRENCY");
+            }
+            else //If currency not different, set to CURDEF
+            {
+                this.Currency = currency;
+            }
 
             //If senders bank/credit card details avaliable, add
-            if (NodeExists(node, ".//BANKACCTTO"))
-                TransactionSenderAccount = new Account(node.SelectSingleNode(".//BANKACCTTO"), AccountType.BANK);
-            else if (NodeExists(node, ".//CCACCTTO"))
-                TransactionSenderAccount = new Account(node.SelectSingleNode(".//CCACCTTO"), AccountType.CC);
+            if (this.NodeExists(node, ".//BANKACCTTO"))
+            {
+                this.TransactionSenderAccount = new Account(node.SelectSingleNode(".//BANKACCTTO"), AccountType.BANK);
+            }
+            else if (this.NodeExists(node, ".//CCACCTTO"))
+            {
+                this.TransactionSenderAccount = new Account(node.SelectSingleNode(".//CCACCTTO"), AccountType.CC);
+            }
         }
 
         public OFXTransactionType TransType { get; set; }
