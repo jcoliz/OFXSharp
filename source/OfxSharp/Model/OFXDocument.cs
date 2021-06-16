@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
@@ -99,7 +100,11 @@ namespace OfxSharp
 
         #region Non-async
 
-        public static OfxDocument FromSgmlFile( String filePath )
+        /// <summary></summary>
+        /// <param name="filePath"></param>
+        /// <param name="cultureOrNullForAutodetect">TODO: Use the &quot;LANGUAGE&quot; element to detect numeric formatting.</param>
+        /// <returns></returns>
+        public static OfxDocument FromSgmlFile( String filePath )//, CultureInfo cultureOrNullForAutodetect )
         {
             using( FileStream fs = new FileStream( filePath, FileMode.Open, FileAccess.Read, FileShare.Read, bufferSize: 4096, FileOptions.SequentialScan ) )
             {
@@ -184,9 +189,10 @@ namespace OfxSharp
                 SgmlDtd ofxSgmlDtd = ReadOfxSgmlDtd();
 
                 SgmlReader sgmlReader = new SgmlReader();
-                sgmlReader.InputStream = reader;
-                sgmlReader.DocType     = "OFX"; // <-- This causes DTD magic to happen. I don't know where it gets the DTD from though.
-                sgmlReader.Dtd         = ofxSgmlDtd;
+                sgmlReader.WhitespaceHandling = WhitespaceHandling.None; // hmm, this doesn't work.
+                sgmlReader.InputStream        = reader;
+                sgmlReader.DocType            = "OFX"; // <-- This causes DTD magic to happen. I don't know where it gets the DTD from though.
+                sgmlReader.Dtd                = ofxSgmlDtd;
 
                 // https://stackoverflow.com/questions/1346995/how-to-create-a-xmldocument-using-xmlwriter-in-net
                 XmlDocument doc = new XmlDocument(); 

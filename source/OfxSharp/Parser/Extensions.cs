@@ -60,7 +60,7 @@ namespace OfxSharp
             {
                 if( selectedNode.FirstChild is XmlNode firstChild && firstChild.NodeType == XmlNodeType.Text )
                 {
-                    return firstChild.Value;
+                    return firstChild.Value.Trim(); // <-- SgmlReader adds trailing "\r\n" to every closing element, I don't know how to fix it.
                 }
             }
                 
@@ -76,7 +76,7 @@ namespace OfxSharp
             {
                 if( selectedNode.FirstChild is XmlNode firstChild && firstChild.NodeType == XmlNodeType.Text )
                 {
-                    value = firstChild.Value;
+                    value = firstChild.Value?.Trim();
                     return true;
                 }
             }
@@ -94,7 +94,7 @@ namespace OfxSharp
                     String value = firstChild.Value;
                     if( value.IsSet() )
                     {
-                        return value;
+                        return value.Trim();
                     }
                     else
                     {

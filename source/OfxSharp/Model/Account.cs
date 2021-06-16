@@ -34,8 +34,8 @@ namespace OfxSharp
         {
             this.AccountType = type;
 
-            this.AccountId = node.GetValue("//ACCTID");
-            this.AccountKey = node.GetValue("//ACCTKEY");
+            this.AccountId = node.GetValue("//ACCTID")?.Trim();
+            this.AccountKey = node.GetValue("//ACCTKEY")?.Trim();
 
             switch ( this.AccountType )
             {
