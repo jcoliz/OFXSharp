@@ -12,7 +12,7 @@ namespace OfxSharp
 
         public Transaction(XmlNode node, string currency)
         {
-            this.TransType                     = GetTransactionType(node.GetValue(".//TRNTYPE"));
+            this.TransType                     = this.GetTransactionType(node.GetValue(".//TRNTYPE"));
             this.Date                          = node.GetValue(".//DTPOSTED").MaybeParseOfxDateTime();
             this.TransactionInitializationDate = node.GetValue(".//DTUSER").MaybeParseOfxDateTime();
             this.FundAvaliabilityDate          = node.GetValue(".//DTAVAIL").MaybeParseOfxDateTime();
@@ -41,7 +41,7 @@ namespace OfxSharp
 			string tempCorrectionAction = node.GetValue(".//CORRECTACTION");
 
             this.TransactionCorrectionAction = !string.IsNullOrEmpty(tempCorrectionAction)
-                ? GetTransactionCorrectionType(tempCorrectionAction)
+                ? this.GetTransactionCorrectionType(tempCorrectionAction)
                 : TransactionCorrectionType.NA;
 
             this.ServerTransactionId = node.GetValue(".//SRVRTID");

@@ -1,3 +1,4 @@
+using System;
 using System.Xml;
 
 namespace OfxSharp
@@ -6,23 +7,23 @@ namespace OfxSharp
     {
         public Account(XmlNode node, AccountType type)
         {
-            AccountType = type;
+            this.AccountType = type;
 
-            AccountId = node.GetValue("//ACCTID");
-            AccountKey = node.GetValue("//ACCTKEY");
+            this.AccountId = node.GetValue("//ACCTID");
+            this.AccountKey = node.GetValue("//ACCTKEY");
 
-            switch (AccountType)
+            switch ( this.AccountType )
             {
                 case AccountType.BANK:
-                    InitializeBank(node);
+                this.InitializeBank(node);
                     break;
 
                 case AccountType.AP:
-                    InitializeAp(node);
+                this.InitializeAp(node);
                     break;
 
                 case AccountType.AR:
-                    InitializeAr(node);
+                this.InitializeAr(node);
                     break;
             }
         }
@@ -36,18 +37,20 @@ namespace OfxSharp
         /// </summary>
         private void InitializeBank(XmlNode node)
         {
-            BankId = node.GetValue("//BANKID");
-            BranchId = node.GetValue("//BRANCHID");
+            this.BankId = node.GetValue("//BANKID");
+            this.BranchId = node.GetValue("//BRANCHID");
 
             //Get Bank Account Type from XML
-            var bankAccountType = node.GetValue("//ACCTTYPE");
+            String bankAccountType = node.GetValue("//ACCTTYPE");
 
             //Check that it has been set
             if (string.IsNullOrEmpty(bankAccountType))
+            {
                 throw new OFXParseException("Bank Account type unknown");
+            }
 
             //Set bank account enum
-            _bankAccountType = bankAccountType.GetBankAccountType();
+            this._bankAccountType = bankAccountType.GetBankAccountType();
         }
 
         #region Bank Only
@@ -60,8 +63,8 @@ namespace OfxSharp
 
         public BankAccountType BankAccountType
         {
-            get => AccountType == AccountType.BANK ? _bankAccountType : BankAccountType.NA;
-            set => _bankAccountType = AccountType == AccountType.BANK ? value : BankAccountType.NA;
+            get => this.AccountType == AccountType.BANK ? this._bankAccountType : BankAccountType.NA;
+            set => this._bankAccountType = this.AccountType == AccountType.BANK ? value : BankAccountType.NA;
         }
 
         #endregion Bank Only

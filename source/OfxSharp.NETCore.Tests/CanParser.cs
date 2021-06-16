@@ -18,9 +18,9 @@ namespace OfxSharp.NETCore.Tests
         [Test]
         public void CanParserItau()
         {
-            var ofxFile = new FileStream(@"Files/itau.ofx", FileMode.Open);
+            FileStream ofxFile = new FileStream(@"Files/itau.ofx", FileMode.Open);
 
-            var ofxDocument = this.parser.Import(ofxFile);
+            OFXDocument ofxDocument = this.parser.Import(ofxFile);
 
             _ = ofxDocument.Should().NotBeNull();
             _ = ofxDocument.StatementStart.Should().Be(new DateTimeOffset(2013, 12,  5, 10, 0, 0, TimeSpan.FromHours(-3))); // "20131205100000[-03:EST]" -> 2013-12-05 10:00:00-03:00
@@ -34,9 +34,9 @@ namespace OfxSharp.NETCore.Tests
         [Test]
         public void CanParserSantander()
         {
-            var ofxFile = new FileStream(@"Files/santander.ofx", FileMode.Open);
+            FileStream ofxFile = new FileStream(@"Files/santander.ofx", FileMode.Open);
 
-            var ofxDocument = this.parser.Import(ofxFile);
+            OFXDocument ofxDocument = this.parser.Import(ofxFile);
 
             _ = ofxDocument.Should().NotBeNull();
             _ = ofxDocument.StatementStart.Should().Be(new DateTimeOffset(2014, 2, 3, 18, 22, 51, TimeSpan.FromHours(-3))); // "20140203182251[-3:GMT]" -> 2014-02-03 18:22:51-03:00
@@ -50,9 +50,9 @@ namespace OfxSharp.NETCore.Tests
         [Test]
         public void CanParserBradesco()
         {
-            var ofxFile = new FileStream(@"Files/bradesco.ofx", FileMode.Open);
+            FileStream ofxFile = new FileStream(@"Files/bradesco.ofx", FileMode.Open);
 
-            var ofxDocument = this.parser.Import(ofxFile);
+            OFXDocument ofxDocument = this.parser.Import(ofxFile);
 
             _ = ofxDocument.Should().NotBeNull();
             _ = ofxDocument.StatementStart.Should().Be(new DateTimeOffset(2019, 5, 9, 12, 0, 0, TimeSpan.Zero ) ); // "20190509120000" -> 2019-05-09 12:00:00
