@@ -5,7 +5,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using System.Xml;
 
-using ReadSharp.Ports.Sgml;
+using Sgml;
 
 namespace OfxSharp
 {
@@ -181,10 +181,12 @@ namespace OfxSharp
             // Convert SGML to XML:
             try
             {
+                SgmlDtd ofxSgmlDtd = ReadOfxSgmlDtd();
+
                 SgmlReader sgmlReader = new SgmlReader();
                 sgmlReader.InputStream = reader;
                 sgmlReader.DocType     = "OFX"; // <-- This causes DTD magic to happen. I don't know where it gets the DTD from though.
-                sgmlReader.Dtd = new SgmlDtd(  )
+                sgmlReader.Dtd         = ofxSgmlDtd;
 
                 // https://stackoverflow.com/questions/1346995/how-to-create-a-xmldocument-using-xmlwriter-in-net
                 XmlDocument doc = new XmlDocument(); 
@@ -201,6 +203,26 @@ namespace OfxSharp
             catch( Exception ex )
             {
                 throw;
+            }
+        }
+
+        private static SgmlDtd ReadOfxSgmlDtd()
+        {
+            using( FileStream fs = new FileStream( @"C:\git\forks\OFXSharp\source\Specifications\OFX1.6\ofx160.dtd", FileMode.Open, FileAccess.Read, FileShare.Read, bufferSize: 4096 ) )
+            using( StreamReader rdr = new StreamReader( fs ) )
+            {
+                // Example cribbed from https://github.com/lovettchris/SgmlReader/blob/363decf083dd847d18c4c765cf0b87598ca491a0/SgmlTests/Tests-Logic.cs
+
+                SgmlDtd dtd = SgmlDtd.Parse(
+                    baseUri : null,
+                    name    : "OFX",
+                    input   : rdr,
+                    subset  : "",
+                    nt      : new NameTable(),
+                    resolver: new DesktopEntityResolver()
+                );
+
+                return dtd;
             }
         }
 
