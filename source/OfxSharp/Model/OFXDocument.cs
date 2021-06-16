@@ -208,15 +208,22 @@ namespace OfxSharp
 
         private static SgmlDtd ReadOfxSgmlDtd()
         {
-            using( FileStream fs = new FileStream( @"C:\git\forks\OFXSharp\source\Specifications\OFX1.6\ofx160.dtd", FileMode.Open, FileAccess.Read, FileShare.Read, bufferSize: 4096 ) )
+            // Need to strip the DTD envelope, apparently...:  https://github.com/lovettchris/SgmlReader/issues/13#issuecomment-862666405
+            String dtdText;
+            using( FileStream fs = new FileStream( @"C:\git\forks\OFXSharp\source\Specifications\OFX1.6\ofx160.trimmed.dtd", FileMode.Open, FileAccess.Read, FileShare.Read, bufferSize: 4096 ) )
             using( StreamReader rdr = new StreamReader( fs ) )
             {
-                // Example cribbed from https://github.com/lovettchris/SgmlReader/blob/363decf083dd847d18c4c765cf0b87598ca491a0/SgmlTests/Tests-Logic.cs
+                dtdText = rdr.ReadToEnd();
+            }
 
+            // Example cribbed from https://github.com/lovettchris/SgmlReader/blob/363decf083dd847d18c4c765cf0b87598ca491a0/SgmlTests/Tests-Logic.cs
+            
+            using( StringReader dtdReader = new StringReader( dtdText ) )
+            {
                 SgmlDtd dtd = SgmlDtd.Parse(
                     baseUri : null,
                     name    : "OFX",
-                    input   : rdr,
+                    input   : dtdReader,
                     subset  : "",
                     nt      : new NameTable(),
                     resolver: new DesktopEntityResolver()
