@@ -190,6 +190,7 @@ namespace OfxSharp
 
                 SgmlReader sgmlReader = new SgmlReader();
                 sgmlReader.WhitespaceHandling = WhitespaceHandling.None; // hmm, this doesn't work.
+                // Hopefully the next update to `` will include my changes to support trimmed output: https://github.com/lovettchris/SgmlReader/issues/15
                 sgmlReader.InputStream        = reader;
                 sgmlReader.DocType            = "OFX"; // <-- This causes DTD magic to happen. I don't know where it gets the DTD from though.
                 sgmlReader.Dtd                = ofxSgmlDtd;
