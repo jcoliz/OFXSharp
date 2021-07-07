@@ -39,17 +39,17 @@ namespace OfxSharp
 
             switch ( this.AccountType )
             {
-                case AccountType.BANK:
+             case AccountType.BANK:
                 this.InitializeBank(node);
-                    break;
+                break;
 
-                case AccountType.AP:
+             case AccountType.AP:
                 this.InitializeAp(node);
-                    break;
+                break;
 
-                case AccountType.AR:
+            case AccountType.AR:
                 this.InitializeAr(node);
-                    break;
+                break;
             }
         }
 
@@ -92,8 +92,9 @@ namespace OfxSharp
 
         #endregion Bank Only
 
-        #region Account types not supported
+        #region Account types not supported yet...
 
+#pragma warning disable IDE0060 // Remove unused parameter
         private void InitializeAp(XmlNode node)
         {
             throw new OfxParseException("AP Account type not supported");
