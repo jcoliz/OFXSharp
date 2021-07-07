@@ -35,8 +35,8 @@ namespace OfxSharp
             if( accountElement is null ) throw new ArgumentNullException( nameof( accountElement ) );
 
             this.AccountType = type;
-            this.AccountId   = accountElement.GetValue("//ACCTID") ?.Trim();
-            this.AccountKey  = accountElement.GetValue("//ACCTKEY")?.Trim();
+            this.AccountId   = accountElement.GetSingleElementChildOrNull( "ACCTID"  )?.Value;
+            this.AccountKey  = accountElement.GetSingleElementChildOrNull( "ACCTKEY" )?.Value;
         }
 
         /// <summary><c>ACCTID</c>. Can be null.</summary>
@@ -57,9 +57,9 @@ namespace OfxSharp
             {
                 if( bankAccountElement is null ) throw new ArgumentNullException( nameof( bankAccountElement ) );
 
-                this.BankId          = bankAccountElement.GetValue("//BANKID");
-                this.BranchId        = bankAccountElement.GetValue("//BRANCHID");
-                this.BankAccountType = bankAccountElement.GetValue("//ACCTTYPE").ParseEnum<BankAccountType>();
+                this.BankId          = bankAccountElement.RequireSingleElementChild( "BANKID"   ).Value;
+                this.BranchId        = bankAccountElement.RequireSingleElementChild( "BRANCHID" ).Value;
+                this.BankAccountType = bankAccountElement.RequireSingleElementChild( "ACCTTYPE" ).Value.ParseEnum<BankAccountType>();
             }
 
             /// <summary>BANKID</summary>

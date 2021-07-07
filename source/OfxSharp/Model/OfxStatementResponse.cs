@@ -11,7 +11,7 @@ namespace OfxSharp
     {
         public static OfxStatementResponse FromSTMTTRNRS( XmlElement stmtrnrs )
         {
-            _ = stmtrnrs.AssertIsElement( "STMTTRNRS" );
+            _ = stmtrnrs.AssertIsElement( "STMTTRNRS", parentElementName: "BANKMSGSRSV1" );
 
             XmlElement stmtrs    = stmtrnrs.RequireSingleElementChild("STMTRS");
             XmlElement transList = stmtrs  .RequireSingleElementChild("BANKTRANLIST");

@@ -24,7 +24,7 @@ namespace OfxSharp
         {
             _ = bankMessageResponse.AssertIsElement( "BANKMSGSRSV1" );
 
-            foreach( XmlNode stmTrnResponse in bankMessageResponse.SelectNodes("./STMTTRNRS") )
+            foreach( XmlElement stmTrnResponse in bankMessageResponse.GetChildNodes("STMTTRNRS") )
             {
                 XmlElement stmtTrnRs = stmTrnResponse.AssertIsElement("STMTTRNRS");
 
