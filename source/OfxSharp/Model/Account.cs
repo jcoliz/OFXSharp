@@ -4,9 +4,9 @@ using System.Xml;
 namespace OfxSharp
 {
     /// <summary>11.3.1 Banking Account &lt;BANKACCTFROM&gt; and &lt;BANKACCTTO&gt;</summary>
-    public class Account
+    public abstract class Account
     {
-        public static Account FromXmlElement( XmlNode accountElementOrNull )
+        public static Account FromXmlElement( XmlElement accountElementOrNull )
         {
             if( accountElementOrNull is null )
             {
@@ -14,97 +14,74 @@ namespace OfxSharp
             }
             else if( accountElementOrNull.Name == "BANKACCTFROM" )
             {
-                return new Account( node: accountElementOrNull, type: AccountType.BANK );
+                return new BankAccount( accountElementOrNull );
             }
             else if( accountElementOrNull.Name == "BANKACCTTO" )
             {
-                return new Account( node: accountElementOrNull, type: AccountType.BANK );
+                return new BankAccount( accountElementOrNull );
             }
             else if( accountElementOrNull.Name == "CCACCTFROM" )
             {
-                return new Account( node: accountElementOrNull, type: AccountType.CC );
+                return new CreditAccount( accountElementOrNull );
             }
             else
             {
-                throw new OfxException( message: "Unrecognized or unsupported account element: <{0}>".Fmt( accountElementOrNull.Name ) );
+                throw new OfxException( message: "Expected null, <BANKACCTFROM>, <BANKACCTTO>, or <CCACCTFROM>, but encountered: <{0}>".Fmt( accountElementOrNull.Name ) );
             }
         }
 
-        public Account(XmlNode node, AccountType type)
+        private Account( XmlElement accountElement, AccountType type )
         {
+            if( accountElement is null ) throw new ArgumentNullException( nameof( accountElement ) );
+
             this.AccountType = type;
+            this.AccountId   = accountElement.GetValue("//ACCTID") ?.Trim();
+            this.AccountKey  = accountElement.GetValue("//ACCTKEY")?.Trim();
+        }
 
-            this.AccountId = node.GetValue("//ACCTID")?.Trim();
-            this.AccountKey = node.GetValue("//ACCTKEY")?.Trim();
+        /// <summary><c>ACCTID</c>. Can be null.</summary>
+        public string      AccountId   { get; }
 
-            switch ( this.AccountType )
+        /// <summary><c>ACCTKEY</c></summary>
+        public string      AccountKey  { get; }
+
+        /// <summary>Varies based on <c>BANKACCTFROM</c> or <c>BANKACCTTO</c> or <c>CCACCTFROM</c></summary>
+        public AccountType AccountType { get; }
+
+        #region Subtypes
+
+        public sealed class BankAccount : Account
+        {
+            public BankAccount( XmlElement bankAccountElement )
+                : base( bankAccountElement, AccountType.BANK )
             {
-             case AccountType.BANK:
-                this.InitializeBank(node);
-                break;
+                if( bankAccountElement is null ) throw new ArgumentNullException( nameof( bankAccountElement ) );
 
-             case AccountType.AP:
-                this.InitializeAp(node);
-                break;
+                this.BankId          = bankAccountElement.GetValue("//BANKID");
+                this.BranchId        = bankAccountElement.GetValue("//BRANCHID");
+                this.BankAccountType = bankAccountElement.GetValue("//ACCTTYPE").ParseEnum<BankAccountType>();
+            }
 
-            case AccountType.AR:
-                this.InitializeAr(node);
-                break;
+            /// <summary>BANKID</summary>
+            public string BankId { get; }
+
+            /// <summary>BRANCHID</summary>
+            public string BranchId { get; }
+
+            /// <summary>ACCTTYPE</summary>
+            public BankAccountType BankAccountType { get; }
+        }
+
+        public sealed class CreditAccount : Account
+        {
+            public CreditAccount( XmlElement creditAccountElement )
+                : base( creditAccountElement, AccountType.CC )
+            {
+                if( creditAccountElement is null ) throw new ArgumentNullException( nameof( creditAccountElement ) );
             }
         }
 
-        public string      AccountId   { get; set; }
-        public string      AccountKey  { get; set; }
-        public AccountType AccountType { get; set; }
-
-        /// <summary>Initializes information specific to bank</summary>
-        private void InitializeBank(XmlNode node)
-        {
-            this.BankId = node.GetValue("//BANKID");
-            this.BranchId = node.GetValue("//BRANCHID");
-
-            //Get Bank Account Type from XML
-            String bankAccountType = node.GetValue("//ACCTTYPE");
-
-            //Check that it has been set
-            if (string.IsNullOrEmpty(bankAccountType))
-            {
-                throw new OfxParseException("Bank Account type unknown");
-            }
-
-            //Set bank account enum
-            this._bankAccountType = bankAccountType.ParseEnum<BankAccountType>();
-        }
-
-        #region Bank Only
-
-        private BankAccountType _bankAccountType = BankAccountType.NA;
-
-        public string BankId { get; set; }
-
-        public string BranchId { get; set; }
-
-        public BankAccountType BankAccountType
-        {
-            get => this.AccountType == AccountType.BANK ? this._bankAccountType : BankAccountType.NA;
-            set => this._bankAccountType = this.AccountType == AccountType.BANK ? value : BankAccountType.NA;
-        }
-
-        #endregion Bank Only
-
-        #region Account types not supported yet...
-
-#pragma warning disable IDE0060 // Remove unused parameter
-        private void InitializeAp(XmlNode node)
-        {
-            throw new OfxParseException("AP Account type not supported");
-        }
-
-        private void InitializeAr(XmlNode node)
-        {
-            throw new OfxParseException("AR Account type not supported");
-        }
-
-        #endregion Account types not supported
+        #endregion
     }
+
 }

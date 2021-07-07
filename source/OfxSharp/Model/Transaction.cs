@@ -60,11 +60,11 @@ namespace OfxSharp
             //If senders bank/credit card details avaliable, add
             if( stmtTrn.TryGetDescendant( ".//BANKACCTTO", out XmlElement bankAcct ) )
             {
-                this.TransactionSenderAccount = new Account( bankAcct, AccountType.BANK );
+                this.TransactionSenderAccount = Account.FromXmlElement( bankAcct );
             }
             else if( stmtTrn.TryGetDescendant( ".//CCACCTTO", out XmlElement creditCardAcct ) )
             {
-                this.TransactionSenderAccount = new Account( creditCardAcct, AccountType.CC );
+                this.TransactionSenderAccount = Account.FromXmlElement( creditCardAcct );
             }
         }
 

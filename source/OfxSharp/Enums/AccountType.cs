@@ -10,8 +10,6 @@ namespace OfxSharp
 
         [Description("Accounts Payable")] AP,
 
-        [Description("Accounts Recievable")] AR,
-
-        NA
+        [Description("Accounts Recievable")] AR
     }
 }
