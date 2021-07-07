@@ -18,18 +18,18 @@ namespace OfxSharp
 
             //
 
-            String defaultCurrency = stmtrs.RequireNonemptyValue("CURDEF");
+            String defaultCurrency = stmtrs.RequireSingleElementChild("CURDEF").RequireSingleTextChildNode();
 
             return new OfxStatementResponse(
-                trnUid           : stmtrnrs.RequireNonemptyValue("TRNUID").RequireParseInt32(),
+                trnUid           : stmtrnrs.RequireSingleElementChild("TRNUID").RequireSingleTextChildNode().RequireParseInt32(),
                 responseStatus   : OfxStatus.FromXmlElement( stmtrnrs.RequireSingleElementChild("STATUS") ),
                 defaultCurrency  : defaultCurrency,
                 accountFrom      : Account.FromXmlElement( stmtrs.GetSingleElementChildOrNull("BANKACCTFROM") ),
-                transactionsStart: transList.RequireNonemptyValue("DTSTART").RequireParseOfxDateTime(),
-                transactionsEnd  : transList.RequireNonemptyValue("DTEND"  ).RequireParseOfxDateTime(),
+                transactionsStart: transList.RequireSingleElementChild("DTSTART").RequireSingleTextChildNode().RequireParseOfxDateTime(),
+                transactionsEnd  : transList.RequireSingleElementChild("DTEND"  ).RequireSingleTextChildNode().RequireParseOfxDateTime(),
                 transactions     : GetTransactions( transList, defaultCurrency ),
-                ledgerBalance    : Balance.FromXmlElement( stmtrs.SelectSingleNode("LEDGERBAL") ),
-                availableBalance : Balance.FromXmlElement( stmtrs.SelectSingleNode("AVAILBAL" ) )
+                ledgerBalance    : Balance.FromXmlElementOrNull( stmtrs.SelectSingleNode("LEDGERBAL") ),
+                availableBalance : Balance.FromXmlElementOrNull( stmtrs.SelectSingleNode("AVAILBAL" ) )
             );
         }
 

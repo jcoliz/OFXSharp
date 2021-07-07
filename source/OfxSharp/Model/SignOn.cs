@@ -9,13 +9,16 @@ namespace OfxSharp
         {
             _ = signonMsgsrsV1.AssertIsElement( "SIGNONMSGSRSV1" );
 
+            XmlElement signOnResponse = signonMsgsrsV1.RequireSingleElementChild( "SONRS"  );
+            XmlElement status         = signOnResponse.RequireSingleElementChild( "STATUS" );
+
             return new SignOnResponse(
-                statusCode    : signonMsgsrsV1.RequireNonemptyValue("//STATUS/CODE").RequireParseInt32(),
-                statusSeverity: signonMsgsrsV1.RequireNonemptyValue("//STATUS/SEVERITY"),
-                dtServer      : signonMsgsrsV1.RequireNonemptyValue("//DTSERVER").RequireOptionalParseOfxDateTime(),
-                language      : signonMsgsrsV1.RequireNonemptyValue("//LANGUAGE"),
-                intuBid       : signonMsgsrsV1.GetOptionalValue("//INTU.BID"),
-                institution   : FinancialInstitution.FromXmlNode( signonMsgsrsV1.SelectSingleNode("//FI") )
+                statusCode    : status.RequireSingleElementChild( "CODE"     ).RequireSingleTextChildNode().RequireParseInt32(),
+                statusSeverity: status.RequireSingleElementChild( "SEVERITY" ).RequireSingleTextChildNode(),
+                dtServer      : signOnResponse.RequireSingleElementChild( "DTSERVER" ).RequireSingleTextChildNode().RequireOptionalParseOfxDateTime(),
+                language      : signOnResponse.RequireSingleElementChild( "LANGUAGE" ).RequireSingleTextChildNode(),
+                intuBid       : signOnResponse.GetSingleElementChildOrNull( "INTU.BID", allowDotsInElementName: true )?.RequireSingleTextChildNode() ?? null,
+                institution   : FinancialInstitution.FromXmlElementOrNull( signOnResponse.GetSingleElementChildOrNull("FI") )
             );
         }
 

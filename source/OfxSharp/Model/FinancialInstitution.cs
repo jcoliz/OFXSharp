@@ -3,9 +3,10 @@ using System.Xml;
 
 namespace OfxSharp
 {
+    /// <summary>FI</summary>
     public class FinancialInstitution
     {
-        public static FinancialInstitution FromXmlNode( XmlNode fiOrNull )
+        public static FinancialInstitution FromXmlElementOrNull( XmlElement fiOrNull )
         {
             if( fiOrNull is null )
             {
@@ -13,10 +14,10 @@ namespace OfxSharp
             }
             else
             {
-                XmlElement fi = fiOrNull.AssertIsElement( "FI" );
+                XmlElement fi = fiOrNull.AssertIsElement( "FI", parentElementName: "SONRS" );
 
-                String orgName = fi.TryGetValue( "//ORG", out orgName ) ? orgName : null;
-                String fIdText = fi.TryGetValue( "//FID", out fIdText ) ? fIdText : null;
+                String orgName = fi.RequireSingleElementChild("ORG").RequireSingleTextChildNode();
+                String fIdText = fi.RequireSingleElementChild("FID").RequireSingleTextChildNode();
                 Int32? fId     = fIdText.TryParseInt32();
 
                 return new FinancialInstitution( name: orgName, fId: fId );

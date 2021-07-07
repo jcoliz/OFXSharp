@@ -30,11 +30,16 @@ namespace OfxSharp
             '.', '*', '/', '[', ']'
         };
 
+        private static readonly Char[] _xpathSyntaxCharsWithoutDot = new[]
+        {
+            '*', '/', '[', ']'
+        };
+
         public static XmlElement RequireSingleElementChild( this XmlElement element, String childElementName )
         {
             if( element is null ) throw new ArgumentNullException( nameof( element ) );
             if( String.IsNullOrWhiteSpace( childElementName ) ) throw new ArgumentException( message: "Value cannot be null/empty/whitespace.", paramName: nameof(childElementName) );
-            if( childElementName.IndexOfAny( _xpathSyntaxChars ) > -1 ) throw new ArgumentException( message: "Value cannot contain XPath syntax characters.", paramName: nameof(childElementName) );
+            if( childElementName.IndexOfAny( _xpathSyntaxChars ) > -1 ) throw new ArgumentOutOfRangeException( message: "Value cannot contain XPath syntax characters.", actualValue: childElementName, paramName: nameof(childElementName) );
 
             //
 
@@ -49,11 +54,25 @@ namespace OfxSharp
             }
         }
 
-        public static XmlElement GetSingleElementChildOrNull( this XmlElement element, String childElementName )
+        public static XmlElement GetSingleElementChildOrNull( this XmlElement element, String childElementName, Boolean allowDotsInElementName = false )
         {
             if( element is null ) throw new ArgumentNullException( nameof( element ) );
             if( String.IsNullOrWhiteSpace( childElementName ) ) throw new ArgumentException( message: "Value cannot be null/empty/whitespace.", paramName: nameof(childElementName) );
-            if( childElementName.IndexOfAny( _xpathSyntaxChars ) > -1 ) throw new ArgumentException( message: "Value cannot contain XPath syntax characters.", paramName: nameof(childElementName) );
+            
+            if( allowDotsInElementName )
+            {
+                if( childElementName.IndexOfAny( _xpathSyntaxCharsWithoutDot ) > -1 )
+                {
+                    throw new ArgumentException( message: "Value cannot contain XPath syntax characters.", paramName: nameof(childElementName) );
+                }
+            }
+            else
+            {
+                if( childElementName.IndexOfAny( _xpathSyntaxChars ) > -1 )
+                {
+                    throw new ArgumentException( message: "Value cannot contain XPath syntax characters.", paramName: nameof(childElementName) );
+                }
+            }
 
             //
 
@@ -90,6 +109,22 @@ namespace OfxSharp
             //
 
             return element.SelectNodes( childElementName ).Cast<XmlElement>();
+        }
+
+        public static String RequireSingleTextChildNode( this XmlElement element )
+        {
+            if( element is null ) throw new ArgumentNullException( nameof( element ) );
+
+            XmlNode singleChild = element.ChildNodes.Cast<XmlNode>().Single();
+            if( singleChild.NodeType == XmlNodeType.Text && singleChild is XmlText xmlText )
+            {
+                String value = xmlText.Value.Trim();
+                return value;
+            }
+            else
+            {
+                throw new OfxException( message: "Expected a single #text child node but encountered {1} <{2}> instead.".Fmt( singleChild.NodeType, singleChild.LocalName ) );
+            }
         }
     }
 }

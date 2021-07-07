@@ -54,7 +54,7 @@ namespace OfxSharp
 
             if (currencyNode != null)
             {
-                ofx.Currency = currencyNode.FirstChild.Value;
+                ofx.Currency = currencyNode.FirstChild.RequireSingleTextChildNode();
             }
             else
             {

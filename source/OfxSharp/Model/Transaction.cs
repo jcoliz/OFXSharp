@@ -19,36 +19,40 @@ namespace OfxSharp
 
             //
 
-            this.TransType                     = stmtTrn.RequireSingleElementChild  ( "TRNTYPE"       ) .Value.ParseEnum<OfxTransactionType>();
-            this.Date                          = stmtTrn.RequireSingleElementChild  ( "DTPOSTED"      ) .Value.MaybeParseOfxDateTime();
-            this.TransactionInitializationDate = stmtTrn.GetSingleElementChildOrNull( "DTUSER"        )?.Value.MaybeParseOfxDateTime();
-            this.FundAvaliabilityDate          = stmtTrn.GetSingleElementChildOrNull( "DTAVAIL"       )?.Value.MaybeParseOfxDateTime();
-            this.Amount                        = stmtTrn.RequireSingleElementChild  ( "TRNAMT"        ) .Value.RequireParseDecimal();
-            this.TransactionId                 = stmtTrn.RequireSingleElementChild  ( "FITID"         ) .Value;
+            this.TransType                     = stmtTrn.RequireSingleElementChild  ( "TRNTYPE"       ) .RequireSingleTextChildNode().ParseEnum<OfxTransactionType>();
+            this.Date                          = stmtTrn.RequireSingleElementChild  ( "DTPOSTED"      ) .RequireSingleTextChildNode().MaybeParseOfxDateTime();
+            this.TransactionInitializationDate = stmtTrn.GetSingleElementChildOrNull( "DTUSER"        )?.RequireSingleTextChildNode().MaybeParseOfxDateTime();
+            this.FundAvaliabilityDate          = stmtTrn.GetSingleElementChildOrNull( "DTAVAIL"       )?.RequireSingleTextChildNode().MaybeParseOfxDateTime();
+            this.Amount                        = stmtTrn.RequireSingleElementChild  ( "TRNAMT"        ) .RequireSingleTextChildNode().RequireParseDecimal();
+            this.TransactionId                 = stmtTrn.RequireSingleElementChild  ( "FITID"         ) .RequireSingleTextChildNode();
 
-            this.IncorrectTransactionId        = stmtTrn.GetSingleElementChildOrNull( "CORRECTFITID"  )?.Value;
-            this.TransactionCorrectionAction   = stmtTrn.GetSingleElementChildOrNull( "CORRECTACTION" )?.Value.TryParseEnum<TransactionCorrectionType>() ?? (TransactionCorrectionType?)null;
+            this.IncorrectTransactionId        = stmtTrn.GetSingleElementChildOrNull( "CORRECTFITID"  )?.RequireSingleTextChildNode();
+            this.TransactionCorrectionAction   = stmtTrn.GetSingleElementChildOrNull( "CORRECTACTION" )?.RequireSingleTextChildNode().TryParseEnum<TransactionCorrectionType>() ?? (TransactionCorrectionType?)null;
 
-            this.ServerTransactionId           = stmtTrn.GetSingleElementChildOrNull( "SRVRTID"       )?.Value;
-            this.CheckNum                      = stmtTrn.GetSingleElementChildOrNull( "CHECKNUM"      )?.Value;
-            this.ReferenceNumber               = stmtTrn.GetSingleElementChildOrNull( "REFNUM"        )?.Value;
-            this.Sic                           = stmtTrn.GetSingleElementChildOrNull( "SIC"           )?.Value;
-            this.PayeeId                       = stmtTrn.GetSingleElementChildOrNull( "PAYEEID"       )?.Value;
-            this.Name                          = stmtTrn.GetSingleElementChildOrNull( "NAME"          )?.Value;
-            this.Memo                          = stmtTrn.GetSingleElementChildOrNull( "MEMO"          )?.Value;
+            this.ServerTransactionId           = stmtTrn.GetSingleElementChildOrNull( "SRVRTID"       )?.RequireSingleTextChildNode();
+            this.CheckNum                      = stmtTrn.GetSingleElementChildOrNull( "CHECKNUM"      )?.RequireSingleTextChildNode();
+            this.ReferenceNumber               = stmtTrn.GetSingleElementChildOrNull( "REFNUM"        )?.RequireSingleTextChildNode();
+            this.Sic                           = stmtTrn.GetSingleElementChildOrNull( "SIC"           )?.RequireSingleTextChildNode();
+            this.PayeeId                       = stmtTrn.GetSingleElementChildOrNull( "PAYEEID"       )?.RequireSingleTextChildNode();
+            this.Name                          = stmtTrn.GetSingleElementChildOrNull( "NAME"          )?.RequireSingleTextChildNode();
+            this.Memo                          = stmtTrn.GetSingleElementChildOrNull( "MEMO"          )?.RequireSingleTextChildNode();
 
-            this.OriginalCurrency              = stmtTrn.GetSingleElementChildOrNull( "ORIGCURRENCY"  )?.Value;
-            this.Currency                      = stmtTrn.GetSingleElementChildOrNull( "CURRENCY"      )?.Value;
+            this.OriginalCurrency              = stmtTrn.GetSingleElementChildOrNull( "ORIGCURRENCY"  )?.RequireSingleTextChildNode();
+            this.Currency                      = stmtTrn.GetSingleElementChildOrNull( "CURRENCY"      )?.RequireSingleTextChildNode();
             this.DefaultCurrency               = defaultCurrency;
 
             //If senders bank/credit card details avaliable, add
-            if( stmtTrn.TryGetDescendant( ".//BANKACCTTO", out XmlElement bankAcct ) )
+            if( stmtTrn.GetSingleElementChildOrNull( "BANKACCTTO" ) is XmlElement bankAcct )
             {
                 this.TransactionSenderAccount = Account.FromXmlElement( bankAcct );
             }
-            else if( stmtTrn.TryGetDescendant( ".//CCACCTTO", out XmlElement creditCardAcct ) )
+            else if( stmtTrn.GetSingleElementChildOrNull( "CCACCTTO" ) is XmlElement creditCardAcct )
             {
                 this.TransactionSenderAccount = Account.FromXmlElement( creditCardAcct );
+            }
+            else
+            {
+                this.TransactionSenderAccount = null;
             }
         }
 
