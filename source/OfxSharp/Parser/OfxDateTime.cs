@@ -22,7 +22,11 @@ namespace OfxSharp
         /// <summary>Returns null if <paramref name="s"/> cannot be parsed as an OFX date or datetime - or if the input represents a null value.</summary>
         public static DateTimeOffset? MaybeParseOfxDateTime( this String s )
         {
-            if( TryParseOfxDateTime( s, out DateTimeOffset? value, errorMessage: out _ ) )
+            if( String.IsNullOrWhiteSpace( s ) )
+            {
+                return null;
+            }
+            else if( TryParseOfxDateTime( s, out DateTimeOffset? value, errorMessage: out _ ) )
             {
                 return value;
             }

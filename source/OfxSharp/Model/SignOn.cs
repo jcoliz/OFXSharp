@@ -13,10 +13,10 @@ namespace OfxSharp
             XmlElement status         = signOnResponse.RequireSingleElementChild( "STATUS" );
 
             return new SignOnResponse(
-                statusCode    : status.RequireSingleElementChild( "CODE"     ).RequireSingleTextChildNode().RequireParseInt32(),
-                statusSeverity: status.RequireSingleElementChild( "SEVERITY" ).RequireSingleTextChildNode(),
-                dtServer      : signOnResponse.RequireSingleElementChild( "DTSERVER" ).RequireSingleTextChildNode().RequireOptionalParseOfxDateTime(),
-                language      : signOnResponse.RequireSingleElementChild( "LANGUAGE" ).RequireSingleTextChildNode(),
+                statusCode    : status        .RequireSingleElementChildText( "CODE"     ).RequireParseInt32(),
+                statusSeverity: status        .RequireSingleElementChildText( "SEVERITY" ),
+                dtServer      : signOnResponse.RequireSingleElementChildText( "DTSERVER" ).RequireOptionalParseOfxDateTime(),
+                language      : signOnResponse.RequireSingleElementChildText( "LANGUAGE" ),
                 intuBid       : signOnResponse.GetSingleElementChildOrNull( "INTU.BID", allowDotsInElementName: true )?.RequireSingleTextChildNode() ?? null,
                 institution   : FinancialInstitution.FromXmlElementOrNull( signOnResponse.GetSingleElementChildOrNull("FI") )
             );

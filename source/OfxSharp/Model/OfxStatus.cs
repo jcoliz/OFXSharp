@@ -13,8 +13,8 @@ namespace OfxSharp
             _ = statusElement.AssertIsElement("STATUS");
 
             return new OfxStatus(
-                code    : statusElement.RequireSingleElementChild( "CODE"     ).RequireSingleTextChildNode().ParseEnum<OfxStatusCode>(),
-                severity: statusElement.RequireSingleElementChild( "SEVERITY" ).RequireSingleTextChildNode()
+                code    : statusElement.RequireSingleElementChildText( "CODE"     ).ParseEnum<OfxStatusCode>(),
+                severity: statusElement.RequireSingleElementChildText( "SEVERITY" )
             );
         }
 

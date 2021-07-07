@@ -16,8 +16,8 @@ namespace OfxSharp
             {
                 XmlElement fi = fiOrNull.AssertIsElement( "FI", parentElementName: "SONRS" );
 
-                String orgName = fi.RequireSingleElementChild("ORG").RequireSingleTextChildNode();
-                String fIdText = fi.RequireSingleElementChild("FID").RequireSingleTextChildNode();
+                String orgName = fi.RequireSingleElementChildText( "ORG" );
+                String fIdText = fi.RequireSingleElementChildText( "FID" );
                 Int32? fId     = fIdText.TryParseInt32();
 
                 return new FinancialInstitution( name: orgName, fId: fId );

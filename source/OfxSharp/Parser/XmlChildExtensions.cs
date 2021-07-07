@@ -126,5 +126,15 @@ namespace OfxSharp
                 throw new OfxException( message: "Expected a single #text child node but encountered {1} <{2}> instead.".Fmt( singleChild.NodeType, singleChild.LocalName ) );
             }
         }
+
+        public static String RequireSingleElementChildText( this XmlElement element, String childElementName )
+        {
+            return element.RequireSingleElementChild( childElementName ).RequireSingleTextChildNode();
+        }
+
+        public static String GetSingleElementChildTextOrNull( this XmlElement element, String childElementName )
+        {
+            return element.GetSingleElementChildOrNull( childElementName )?.RequireSingleTextChildNode();
+        }
     }
 }

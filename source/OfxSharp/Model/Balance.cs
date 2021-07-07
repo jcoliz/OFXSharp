@@ -18,8 +18,8 @@ namespace OfxSharp
                 XmlElement ledgerbal = elementOrNull.AssertIsElementOneOf( "LEDGERBAL", "AVAILBAL" );
 
                 return new Balance(
-                    amount: ledgerbal.RequireSingleElementChild("BALAMT").RequireSingleTextChildNode().RequireParseDecimal(),
-                    asOf  : ledgerbal.GetSingleElementChildOrNull("DTASOF").RequireSingleTextChildNode().RequireOptionalParseOfxDateTime()
+                    amount: ledgerbal.RequireSingleElementChildText("BALAMT").RequireParseDecimal(),
+                    asOf  : ledgerbal.GetSingleElementChildTextOrNull("DTASOF").RequireOptionalParseOfxDateTime()
                 );
             }
         }

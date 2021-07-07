@@ -18,18 +18,18 @@ namespace OfxSharp
 
             //
 
-            String defaultCurrency = stmtrs.RequireSingleElementChild("CURDEF").RequireSingleTextChildNode();
+            String defaultCurrency = stmtrs.RequireSingleElementChildText("CURDEF");
 
             return new OfxStatementResponse(
-                trnUid           : stmtrnrs.RequireSingleElementChild("TRNUID").RequireSingleTextChildNode().RequireParseInt32(),
+                trnUid           : stmtrnrs.RequireSingleElementChildText("TRNUID").RequireParseInt32(),
                 responseStatus   : OfxStatus.FromXmlElement( stmtrnrs.RequireSingleElementChild("STATUS") ),
                 defaultCurrency  : defaultCurrency,
-                accountFrom      : Account.FromXmlElement( stmtrs.GetSingleElementChildOrNull("BANKACCTFROM") ),
-                transactionsStart: transList.RequireSingleElementChild("DTSTART").RequireSingleTextChildNode().RequireParseOfxDateTime(),
-                transactionsEnd  : transList.RequireSingleElementChild("DTEND"  ).RequireSingleTextChildNode().RequireParseOfxDateTime(),
+                accountFrom      : Account.FromXmlElementOrNull( stmtrs.GetSingleElementChildOrNull("BANKACCTFROM") ),
+                transactionsStart: transList.RequireSingleElementChildText("DTSTART").RequireParseOfxDateTime(),
+                transactionsEnd  : transList.RequireSingleElementChildText("DTEND"  ).RequireParseOfxDateTime(),
                 transactions     : GetTransactions( transList, defaultCurrency ),
-                ledgerBalance    : Balance.FromXmlElementOrNull( stmtrs.SelectSingleNode("LEDGERBAL") ),
-                availableBalance : Balance.FromXmlElementOrNull( stmtrs.SelectSingleNode("AVAILBAL" ) )
+                ledgerBalance    : Balance.FromXmlElementOrNull( stmtrs.GetSingleElementChildOrNull("LEDGERBAL") ),
+                availableBalance : Balance.FromXmlElementOrNull( stmtrs.GetSingleElementChildOrNull("AVAILBAL" ) )
             );
         }
 
@@ -37,7 +37,7 @@ namespace OfxSharp
         {
             _ = bankTranList.AssertIsElement("BANKTRANLIST");
 
-            foreach( XmlElement stmtTrn in bankTranList.SelectNodes("./STMTTRN").Cast<XmlElement>() )
+            foreach( XmlElement stmtTrn in bankTranList.GetChildNodes( "STMTTRN" ).Cast<XmlElement>() )
             {
                 yield return new Transaction( stmtTrn: stmtTrn, defaultCurrency );
             }

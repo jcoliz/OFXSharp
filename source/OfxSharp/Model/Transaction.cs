@@ -19,12 +19,12 @@ namespace OfxSharp
 
             //
 
-            this.TransType                     = stmtTrn.RequireSingleElementChild  ( "TRNTYPE"       ) .RequireSingleTextChildNode().ParseEnum<OfxTransactionType>();
-            this.Date                          = stmtTrn.RequireSingleElementChild  ( "DTPOSTED"      ) .RequireSingleTextChildNode().MaybeParseOfxDateTime();
-            this.TransactionInitializationDate = stmtTrn.GetSingleElementChildOrNull( "DTUSER"        )?.RequireSingleTextChildNode().MaybeParseOfxDateTime();
-            this.FundAvaliabilityDate          = stmtTrn.GetSingleElementChildOrNull( "DTAVAIL"       )?.RequireSingleTextChildNode().MaybeParseOfxDateTime();
-            this.Amount                        = stmtTrn.RequireSingleElementChild  ( "TRNAMT"        ) .RequireSingleTextChildNode().RequireParseDecimal();
-            this.TransactionId                 = stmtTrn.RequireSingleElementChild  ( "FITID"         ) .RequireSingleTextChildNode();
+            this.TransType                     = stmtTrn.RequireSingleElementChildText  ( "TRNTYPE"       ).ParseEnum<OfxTransactionType>();
+            this.Date                          = stmtTrn.RequireSingleElementChildText  ( "DTPOSTED"      ).MaybeParseOfxDateTime();
+            this.TransactionInitializationDate = stmtTrn.GetSingleElementChildTextOrNull( "DTUSER"        ).MaybeParseOfxDateTime();
+            this.FundAvaliabilityDate          = stmtTrn.GetSingleElementChildTextOrNull( "DTAVAIL"       ).MaybeParseOfxDateTime();
+            this.Amount                        = stmtTrn.RequireSingleElementChildText  ( "TRNAMT"        ).RequireParseDecimal();
+            this.TransactionId                 = stmtTrn.RequireSingleElementChildText  ( "FITID"         );
 
             this.IncorrectTransactionId        = stmtTrn.GetSingleElementChildOrNull( "CORRECTFITID"  )?.RequireSingleTextChildNode();
             this.TransactionCorrectionAction   = stmtTrn.GetSingleElementChildOrNull( "CORRECTACTION" )?.RequireSingleTextChildNode().TryParseEnum<TransactionCorrectionType>() ?? (TransactionCorrectionType?)null;
@@ -44,11 +44,11 @@ namespace OfxSharp
             //If senders bank/credit card details avaliable, add
             if( stmtTrn.GetSingleElementChildOrNull( "BANKACCTTO" ) is XmlElement bankAcct )
             {
-                this.TransactionSenderAccount = Account.FromXmlElement( bankAcct );
+                this.TransactionSenderAccount = Account.FromXmlElementOrNull( bankAcct );
             }
             else if( stmtTrn.GetSingleElementChildOrNull( "CCACCTTO" ) is XmlElement creditCardAcct )
             {
-                this.TransactionSenderAccount = Account.FromXmlElement( creditCardAcct );
+                this.TransactionSenderAccount = Account.FromXmlElementOrNull( creditCardAcct );
             }
             else
             {

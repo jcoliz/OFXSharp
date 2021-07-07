@@ -6,7 +6,7 @@ namespace OfxSharp
     /// <summary>11.3.1 Banking Account &lt;BANKACCTFROM&gt; and &lt;BANKACCTTO&gt;</summary>
     public abstract class Account
     {
-        public static Account FromXmlElement( XmlElement accountElementOrNull )
+        public static Account FromXmlElementOrNull( XmlElement accountElementOrNull )
         {
             if( accountElementOrNull is null )
             {
@@ -35,8 +35,8 @@ namespace OfxSharp
             if( accountElement is null ) throw new ArgumentNullException( nameof( accountElement ) );
 
             this.AccountType = type;
-            this.AccountId   = accountElement.GetSingleElementChildOrNull( "ACCTID"  )?.RequireSingleTextChildNode();
-            this.AccountKey  = accountElement.GetSingleElementChildOrNull( "ACCTKEY" )?.RequireSingleTextChildNode();
+            this.AccountId   = accountElement.GetSingleElementChildTextOrNull( "ACCTID"  );
+            this.AccountKey  = accountElement.GetSingleElementChildTextOrNull( "ACCTKEY" );
         }
 
         /// <summary><c>ACCTID</c>. Can be null.</summary>
@@ -57,9 +57,9 @@ namespace OfxSharp
             {
                 if( bankAccountElement is null ) throw new ArgumentNullException( nameof( bankAccountElement ) );
 
-                this.BankId          = bankAccountElement.GetSingleElementChildOrNull( "BANKID"   )?.RequireSingleTextChildNode();
-                this.BranchId        = bankAccountElement.GetSingleElementChildOrNull( "BRANCHID" )?.RequireSingleTextChildNode();
-                this.BankAccountType = bankAccountElement.RequireSingleElementChild  ( "ACCTTYPE" ) .RequireSingleTextChildNode().ParseEnum<BankAccountType>();
+                this.BankId          = bankAccountElement.GetSingleElementChildTextOrNull( "BANKID"   );
+                this.BranchId        = bankAccountElement.GetSingleElementChildTextOrNull( "BRANCHID" );
+                this.BankAccountType = bankAccountElement.RequireSingleElementChildText  ( "ACCTTYPE" ).ParseEnum<BankAccountType>();
             }
 
             /// <summary>BANKID</summary>
