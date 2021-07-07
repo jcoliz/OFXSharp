@@ -42,6 +42,19 @@ namespace OfxSharp
             }
         }
 
+        public static TEnum? TryParseEnum<TEnum>(this string s)
+           where TEnum : struct, Enum
+        {
+            if( Enum.TryParse<TEnum>( s, ignoreCase: true, out TEnum value ) )
+            {
+                return value;
+            }
+            else
+            {
+                return null;
+            }
+        }
+
         public static TEnum? MaybeParseEnum<TEnum>(this string s)
             where TEnum : struct, Enum
         {
@@ -65,6 +78,36 @@ namespace OfxSharp
             }
                 
             return string.Empty;
+        }
+
+        public static Boolean TryGetDescendant( this XmlElement element, string xpath, out XmlNode descendantNode )
+        {
+            XmlNode desc = element.SelectSingleNode( xpath );
+            if( desc is XmlNode descNode )
+            {
+                descendantNode = descNode;
+                return true;
+            }
+            else
+            {
+                descendantNode = default;
+                return false;
+            }
+        }
+
+        public static Boolean TryGetDescendant( this XmlElement element, string xpath, out XmlElement descendantElement )
+        {
+            XmlNode desc = element.SelectSingleNode( xpath );
+            if( desc is XmlElement descEl )
+            {
+                descendantElement = descEl;
+                return true;
+            }
+            else
+            {
+                descendantElement = default;
+                return false;
+            }
         }
 
         public static Boolean TryGetValue(this XmlNode node, string xpath, out String value)

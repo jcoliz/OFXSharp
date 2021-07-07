@@ -32,10 +32,7 @@ namespace OfxSharp
             }
         }
 
-        public OfxDocument(
-            SignOnResponse                    signOn,
-            IEnumerable<OfxStatementResponse> statements
-        )
+        public OfxDocument( SignOnResponse signOn, IEnumerable<OfxStatementResponse> statements )
         {
             this.SignOn = signOn?? throw new ArgumentNullException( nameof( signOn ) );
 

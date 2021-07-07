@@ -6,20 +6,16 @@ namespace OfxSharp
 {
     public class Transaction
     {
-        public Transaction()
+        public Transaction( XmlElement stmtTrn, string defaultCurrency )
         {
-        }
-
-        public Transaction(XmlNode node, string defaultCurrency)
-        {
-            this.TransType                     = this.GetTransactionType(node.GetValue(".//TRNTYPE"));
-            this.Date                          = node.GetValue(".//DTPOSTED").MaybeParseOfxDateTime();
-            this.TransactionInitializationDate = node.GetValue(".//DTUSER").MaybeParseOfxDateTime();
-            this.FundAvaliabilityDate          = node.GetValue(".//DTAVAIL").MaybeParseOfxDateTime();
+            this.TransType                     = stmtTrn.GetValue(".//TRNTYPE").ParseEnum<OfxTransactionType>();
+            this.Date                          = stmtTrn.GetValue(".//DTPOSTED").MaybeParseOfxDateTime();
+            this.TransactionInitializationDate = stmtTrn.GetValue(".//DTUSER").MaybeParseOfxDateTime();
+            this.FundAvaliabilityDate          = stmtTrn.GetValue(".//DTAVAIL").MaybeParseOfxDateTime();
 
             try
             {
-                this.Amount = Convert.ToDecimal(node.GetValue(".//TRNAMT"), CultureInfo.InvariantCulture);
+                this.Amount = Convert.ToDecimal(stmtTrn.GetValue(".//TRNAMT"), CultureInfo.InvariantCulture);
             }
             catch (Exception ex)
             {
@@ -28,38 +24,33 @@ namespace OfxSharp
 
             try
             {
-                this.TransactionId = node.GetValue(".//FITID");
+                this.TransactionId = stmtTrn.GetValue(".//FITID");
             }
             catch (Exception ex)
             {
                 throw new OfxParseException("Transaction ID unknown", ex);
             }
 
-            this.IncorrectTransactionId = node.GetValue(".//CORRECTFITID");
+            this.IncorrectTransactionId = stmtTrn.GetValue(".//CORRECTFITID");
 
-			//If Transaction Correction Action exists, populate
-			string tempCorrectionAction = node.GetValue(".//CORRECTACTION");
+            this.TransactionCorrectionAction = stmtTrn.GetValue(".//CORRECTACTION").TryParseEnum<TransactionCorrectionType>() ?? TransactionCorrectionType.NA;
 
-            this.TransactionCorrectionAction = !string.IsNullOrEmpty(tempCorrectionAction)
-                ? this.GetTransactionCorrectionType(tempCorrectionAction)
-                : TransactionCorrectionType.NA;
-
-            this.ServerTransactionId = node.GetValue(".//SRVRTID");
-            this.CheckNum = node.GetValue(".//CHECKNUM");
-            this.ReferenceNumber = node.GetValue(".//REFNUM");
-            this.Sic = node.GetValue(".//SIC");
-            this.PayeeId = node.GetValue(".//PAYEEID");
-            this.Name = node.GetValue(".//NAME");
-            this.Memo = node.GetValue(".//MEMO");
+            this.ServerTransactionId = stmtTrn.GetValue(".//SRVRTID");
+            this.CheckNum            = stmtTrn.GetValue(".//CHECKNUM");
+            this.ReferenceNumber     = stmtTrn.GetValue(".//REFNUM");
+            this.Sic                 = stmtTrn.GetValue(".//SIC");
+            this.PayeeId             = stmtTrn.GetValue(".//PAYEEID");
+            this.Name                = stmtTrn.GetValue(".//NAME");
+            this.Memo                = stmtTrn.GetValue(".//MEMO");
 
             //If differenct currency to CURDEF, populate currency
-            if (this.NodeExists(node, ".//CURRENCY"))
+            if( stmtTrn.TryGetDescendant( ".//CURRENCY", out XmlElement currencyEl ))
             {
-                this.Currency = node.GetValue(".//CURRENCY");
+                this.Currency = currencyEl.Value;
             }
-            else if (this.NodeExists(node, ".//ORIGCURRENCY"))
+            else if( stmtTrn.TryGetDescendant( ".//ORIGCURRENCY", out XmlElement origCurrencyEl ) )
             {
-                this.Currency = node.GetValue(".//ORIGCURRENCY");
+                this.Currency = origCurrencyEl.Value;
             }
             else //If currency not different, set to CURDEF
             {
@@ -67,79 +58,50 @@ namespace OfxSharp
             }
 
             //If senders bank/credit card details avaliable, add
-            if (this.NodeExists(node, ".//BANKACCTTO"))
+            if( stmtTrn.TryGetDescendant( ".//BANKACCTTO", out XmlElement bankAcct ) )
             {
-                this.TransactionSenderAccount = new Account(node.SelectSingleNode(".//BANKACCTTO"), AccountType.BANK);
+                this.TransactionSenderAccount = new Account( bankAcct, AccountType.BANK );
             }
-            else if (this.NodeExists(node, ".//CCACCTTO"))
+            else if( stmtTrn.TryGetDescendant( ".//CCACCTTO", out XmlElement creditCardAcct ) )
             {
-                this.TransactionSenderAccount = new Account(node.SelectSingleNode(".//CCACCTTO"), AccountType.CC);
+                this.TransactionSenderAccount = new Account( creditCardAcct, AccountType.CC );
             }
         }
 
-        public OfxTransactionType TransType { get; set; }
+        public OfxTransactionType TransType { get; }
 
-        public DateTimeOffset? Date { get; set; }
+        public DateTimeOffset? Date { get; }
 
-        public decimal Amount { get; set; }
+        public decimal Amount { get; }
 
-        public string TransactionId { get; set; }
+        public string TransactionId { get; }
 
-        public string Name { get; set; }
+        public string Name { get; }
 
-        public DateTimeOffset? TransactionInitializationDate { get; set; }
+        public DateTimeOffset? TransactionInitializationDate { get; }
 
-        public DateTimeOffset? FundAvaliabilityDate { get; set; }
+        public DateTimeOffset? FundAvaliabilityDate { get; }
 
-        public string Memo { get; set; }
+        public string Memo { get; }
 
-        public string IncorrectTransactionId { get; set; }
+        public string IncorrectTransactionId { get; }
 
-        public TransactionCorrectionType TransactionCorrectionAction { get; set; }
+        public TransactionCorrectionType TransactionCorrectionAction { get; }
 
-        public string ServerTransactionId { get; set; }
+        public string ServerTransactionId { get; }
 
-        public string CheckNum { get; set; }
+        public string CheckNum { get; }
 
-        public string ReferenceNumber { get; set; }
+        public string ReferenceNumber { get; }
 
-        public string Sic { get; set; }
+        public string Sic { get; }
 
-        public string PayeeId { get; set; }
+        public string PayeeId { get; }
 
-        public Account TransactionSenderAccount { get; set; }
+        /// <summary><c>BANKACCTTO</c> or <c>CCACCTTO</c> - or <see langword="null"/>.</summary>
+        public Account TransactionSenderAccount { get; }
 
-        public string Currency { get; set; }
-
-        /// <summary>
-        ///     Returns TransactionType from string version
-        /// </summary>
-        /// <param name="transactionType">string version of transaction type</param>
-        /// <returns>Enum version of given transaction type string</returns>
-        private OfxTransactionType GetTransactionType(string transactionType)
-        {
-            return (OfxTransactionType)Enum.Parse(typeof(OfxTransactionType), transactionType);
-        }
-
-        /// <summary>
-        ///     Returns TransactionCorrectionType from string version
-        /// </summary>
-        /// <param name="transactionCorrectionType">string version of Transaction Correction Type</param>
-        /// <returns>Enum version of given TransactionCorrectionType string</returns>
-        private TransactionCorrectionType GetTransactionCorrectionType(string transactionCorrectionType)
-        {
-            return (TransactionCorrectionType)Enum.Parse(typeof(TransactionCorrectionType), transactionCorrectionType);
-        }
-
-        /// <summary>
-        ///     Checks if a node exists
-        /// </summary>
-        /// <param name="node">Node to search in</param>
-        /// <param name="xpath">XPath to node you want to see if exists</param>
-        /// <returns></returns>
-        private bool NodeExists(XmlNode node, string xpath)
-        {
-            return node.SelectSingleNode(xpath) != null;
-        }
+        /// <summary><c>CURRENCY</c> or <c>ORIGCURRENCY</c> - or the default currency string value passed into <see cref="Transaction"/>'s constructor.</summary>
+        public string Currency { get; }
     }
 }

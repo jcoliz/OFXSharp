@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Xml;
 
 namespace OfxSharp
@@ -36,9 +37,9 @@ namespace OfxSharp
         {
             _ = bankTranList.AssertIsElement("BANKTRANLIST");
 
-            foreach( XmlNode stmtTrn in bankTranList.SelectNodes("./STMTTRN") )
+            foreach( XmlElement stmtTrn in bankTranList.SelectNodes("./STMTTRN").Cast<XmlElement>() )
             {
-                yield return new Transaction( node: stmtTrn, defaultCurrency );
+                yield return new Transaction( stmtTrn: stmtTrn, defaultCurrency );
             }
         }
 
@@ -67,30 +68,30 @@ namespace OfxSharp
         }
 
         /// <summary>STMTTRNRS/TRNUID (OFX Request/Response Transaction ID - this is unrelated to bank transactions).</summary>
-        public Int32 OfxTransactionUniqueId { get; set; }
+        public Int32 OfxTransactionUniqueId { get; }
 
         /// <summary>STMTTRNRS/STATUS</summary>
-        public OfxStatus ResponseStatus { get; set; }
+        public OfxStatus ResponseStatus { get; }
 
         /// <summary>STMTTRNRS/STMTRS/CURDEF</summary>
-        public String DefaultCurrency { get; set; }
+        public String DefaultCurrency { get; }
 
         /// <summary>STMTTRNRS/STMTRS/BANKACCTFROM</summary>
-        public Account AccountFrom { get; set; }
+        public Account AccountFrom { get; }
 
         /// <summary>STMTTRNRS/STMTRS/BANKTRANLIST/DTSTART</summary>
-        public DateTimeOffset TransactionsStart { get; set; }
+        public DateTimeOffset TransactionsStart { get; }
 
         /// <summary>STMTTRNRS/STMTRS/BANKTRANLIST/DTEND</summary>
-        public DateTimeOffset TransactionsEnd   { get; set; }
+        public DateTimeOffset TransactionsEnd   { get; }
 
         /// <summary>STMTTRNRS/STMTRS/BANKTRANLIST</summary>
         public List<Transaction> Transactions { get; } = new List<Transaction>();
 
         /// <summary>STMTTRNRS/STMTRS/LEDGERBAL. Required.</summary>
-        public Balance LedgerBalance { get; set; }
+        public Balance LedgerBalance { get; }
 
         /// <summary>STMTTRNRS/STMTRS/AVAILBAL. Optional. Can be null.</summary>
-        public Balance AvailableBalance { get; set; }
+        public Balance AvailableBalance { get; }
     }
 }
