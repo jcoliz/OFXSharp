@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
+using System.Reflection;
 using System.Threading.Tasks;
 using System.Xml;
 
@@ -134,11 +136,30 @@ namespace OfxSharp
             }
         }
 
+        private static Stream OpenEmbeddedResource( string filename )
+        {
+            var assy = Assembly.GetExecutingAssembly();
+            var names = assy.GetManifestResourceNames();
+
+            var matching = names.Where(x => x.Contains(filename));
+            if ( !matching.Any() )
+                throw new FileNotFoundException( $"{filename} not found in assembly" );
+            if ( matching.Skip(1).Any() )
+                throw new FileNotFoundException( $"{filename} is ambiguous. Multiple found in assembly" );
+
+            var name = matching.First();
+            var stream = assy.GetManifestResourceStream(name);
+            if (null == stream)
+                throw new FileNotFoundException( $"{filename} not found in assembly" );
+
+            return stream;
+        }
+
         private static SgmlDtd ReadOfxSgmlDtd()
         {
             // Need to strip the DTD envelope, apparently...:  https://github.com/lovettchris/SgmlReader/issues/13#issuecomment-862666405
             String dtdText;
-            using( FileStream fs = new FileStream( @"C:\git\forks\OFXSharp\source\Specifications\OFX1.6\ofx160.trimmed.dtd", FileMode.Open, FileAccess.Read, FileShare.Read, bufferSize: 4096 ) )
+            using( Stream fs = OpenEmbeddedResource("ofx160.trimmed.dtd") )
             using( StreamReader rdr = new StreamReader( fs ) )
             {
                 dtdText = rdr.ReadToEnd();
@@ -153,7 +174,6 @@ namespace OfxSharp
                     name    : "OFX",
                     input   : dtdReader,
                     subset  : "",
-                    nt      : new NameTable(),
                     resolver: new DesktopEntityResolver()
                 );
 

@@ -24,10 +24,18 @@
   </ItemGroup>
 
   <ItemGroup>
+    <None Remove="ofx160.trimmed.dtd" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Include="ofx160.trimmed.dtd" />
+  </ItemGroup>
+
+  <ItemGroup>
     <None Include="Parser\OfxDocumentParser.cs" />
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.Xml.SgmlReader" Version="1.8.21" />
+    <PackageReference Include="Microsoft.Xml.SgmlReader" Version="1.8.24" />
   </ItemGroup>
 </Project>
