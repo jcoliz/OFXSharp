@@ -24,6 +24,14 @@
   </ItemGroup>
 
   <ItemGroup>
+    <None Remove="Files\ofx160.trimmed.dtd" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Include="Files\ofx160.trimmed.dtd" />
+  </ItemGroup>
+
+  <ItemGroup>
     <None Include="Parser\OfxDocumentParser.cs" />
   </ItemGroup>
 
