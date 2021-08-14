@@ -126,9 +126,7 @@ namespace OfxSharp
                 
                 return doc;
             }
-#pragma warning disable IDE0059 // Unnecessary assignment of a value
-            catch( Exception ex )
-#pragma warning restore IDE0059 // Unnecessary assignment of a value
+            catch( Exception )
             {
                 throw;
             }
