@@ -153,7 +153,6 @@ namespace OfxSharp
                     name    : "OFX",
                     input   : dtdReader,
                     subset  : "",
-                    nt      : new NameTable(),
                     resolver: new DesktopEntityResolver()
                 );
 
