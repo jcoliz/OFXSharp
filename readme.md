@@ -10,29 +10,29 @@ If you have any request, fell free to open a issue.
 ## How to use
 
 ```C#
-var parser = new OFXDocumentParser();
-var ofxDocument = parser.Import(new FileStream(@"c:\ofxdoc.ofx", FileMode.Open));
+OfxDocument ofx = OfxDocumentReader.FromSgmlFile( filePath: @"c:\ofxdoc.ofx" );
+OfxStatementResponse statement = ofx.Statements.First();
 ```
 
-This will give you an object of type `OFXDocument`, with the following properties:
+This will give you an object of type `OfxStatementResponse`, with the following properties:
 
 ```C#
-public class OFXDocument
+public class OfxStatementResponse
 {
-    public DateTime? StatementStart { get; set; }
+    public OfxStatus ResponseStatus { get; }
 
-    public DateTime? StatementEnd { get; set; }
+    public String DefaultCurrency { get; }
 
-    public AccountType AccType { get; set; }
+    public Account AccountFrom { get; }
 
-    public string Currency { get; set; }
+    public DateTimeOffset TransactionsStart { get; }
 
-    public SignOn SignOn { get; set; }
+    public DateTimeOffset TransactionsEnd   { get; }
 
-    public Account Account { get; set; }
+    public List<Transaction> Transactions { get; }
 
-    public Balance Balance { get; set; }
+    public Balance LedgerBalance { get; }
 
-    public List<Transaction> Transactions { get; set; }
+    public Balance AvailableBalance { get; }
 }
 ```
