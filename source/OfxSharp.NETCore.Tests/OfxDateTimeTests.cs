@@ -117,7 +117,7 @@ namespace OfxSharp.NETCore.Tests
 
         private static void TestParseNull( String input, Boolean expectedOK )
         {
-            Boolean ok = OfxDateTime.TryParseOfxDateTime( input, value: out DateTimeOffset? parsedValue, errorMessage: out String errorMessage );
+            Boolean ok = OfxDateTime.TryParseOfxDateTime( input, value: out DateTimeOffset? parsedValue, errorMessage: out _ );
             _ = ok.Should().Be( expectedOK );
             _ = parsedValue.Should().BeNull();
         }
