@@ -55,7 +55,7 @@ namespace OfxSharp.NETCore.Tests
         [Test]
         public void Should_read_Bradseco_statements()
         {
-            OfxDocument ofx = OfxDocumentReader.FromSgmlFile( filePath: "Files\\bradesco.ofx" );
+            OfxDocument ofx = OfxDocumentReader.FromSgmlFile( filePath: "Files/bradesco.ofx" );
             ofx.HasSingleStatement( out SingleStatementOfxDocument ofxDocument ).Should().BeTrue();
 
             ofxDocument.Should().NotBeNull();
