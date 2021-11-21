@@ -4,24 +4,18 @@
     <TargetFramework>netstandard2.0</TargetFramework>
     <PackageId>Jehoel.OfxSharp.NetStandard</PackageId>
     <Description>.NET Standard port of OfxSharp library</Description>
-    <LicenseUrl>http://opensource.org/licenses/MIT</LicenseUrl>
+    <PackageLicenseExpression>/MIT</PackageLicenseExpression>
     <ProjectUrl>https://github.com/kevencarneiro/OFXSharp</ProjectUrl>
     <Authors>jhollingworth, kevencarneiro, Jehoel</Authors>
     <Tags>OFX money</Tags>
-    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
     <Version>3.0.0</Version>
     <Company></Company>
     <PackageReleaseNotes>1.0.0 - kevencarneiro's fork
-
 2.0.0 - Jehoel's fork. Adds support for multiple statements in a single OfxDocument. Legacy single-statement OfxDocuments are supported by `SingleStatementOfxDocument`.
-
 2.1.0 - Added `OfxDocumentFile`.
 3.0.0 - Breaking changes to the API design, but bugfixed some serious issues where XPath queries were wrong and returning the completely wrong elements. Erk!</PackageReleaseNotes>
   </PropertyGroup>
-
-  <ItemGroup>
-    <None Remove="ofx160.trimmed.dtd" />
-  </ItemGroup>
 
   <ItemGroup>
     <EmbeddedResource Include="ofx160.trimmed.dtd" />
