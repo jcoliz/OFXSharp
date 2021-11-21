@@ -2,19 +2,20 @@
 
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
-    <PackageId>Jehoel.OfxSharp.NetStandard</PackageId>
-    <Description>.NET Standard port of OfxSharp library</Description>
+    <PackageId>jcoliz.OfxSharp.NetStandard</PackageId>
+    <Description>OFX file parser in a .NET Standard library</Description>
     <PackageLicenseExpression>/MIT</PackageLicenseExpression>
     <ProjectUrl>https://github.com/kevencarneiro/OFXSharp</ProjectUrl>
     <Authors>jhollingworth, kevencarneiro, Jehoel</Authors>
-    <Tags>OFX money</Tags>
+    <PackageTags>OFX;money;fintech;parser</PackageTags>
     <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
-    <Version>3.0.0</Version>
-    <Company></Company>
+    <Version>$(GitVersion)</Version>
+    <Company>jcoliz</Company>
     <PackageReleaseNotes>1.0.0 - kevencarneiro's fork
 2.0.0 - Jehoel's fork. Adds support for multiple statements in a single OfxDocument. Legacy single-statement OfxDocuments are supported by `SingleStatementOfxDocument`.
 2.1.0 - Added `OfxDocumentFile`.
-3.0.0 - Breaking changes to the API design, but bugfixed some serious issues where XPath queries were wrong and returning the completely wrong elements. Erk!</PackageReleaseNotes>
+3.0.0 - Breaking changes to the API design, but bugfixed some serious issues where XPath queries were wrong and returning the completely wrong elements. Erk!
+3.0.1 - Bug fixing, bringing dependencies current, release to NuGet</PackageReleaseNotes>
   </PropertyGroup>
 
   <ItemGroup>
