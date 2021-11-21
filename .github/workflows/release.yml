@@ -1,0 +1,27 @@
+name: Release
+
+on:
+  release:
+    types:
+      - published
+
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v1
+        with:
+          dotnet-version: 3.1.x
+      - name: Restore dependencies
+        run: dotnet restore
+      - name: Build and Test
+        run: dotnet test /p:Configuration=Release --verbosity normal
+      - name: Pack
+        run: dotnet pack /p:Configuration=Release /p:GitVersion=${GITHUB_REF#refs/tags/} --no-build --verbosity normal
+      - name: Publish to NuGet
+        run: dotnet nuget push **\*.nupkg -s https://api.nuget.org/v3/index.json -k ${{ secrets.NUGET_TOKEN_2022 }} --skip-duplicate
