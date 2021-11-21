@@ -1,6 +1,7 @@
 # OFXSharp
 
 [![Build+Test](https://github.com/jcoliz/OFXSharp/actions/workflows/build+test.yml/badge.svg)](https://github.com/jcoliz/OFXSharp/actions/workflows/build+test.yml)
+[![Release](https://github.com/jcoliz/OFXSharp/actions/workflows/release.yml/badge.svg)](https://github.com/jcoliz/OFXSharp/actions/workflows/release.yml)
 
 This library is a port from the original OFXParser to .NET Standard.
 

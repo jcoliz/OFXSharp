@@ -5,7 +5,7 @@
     <PackageId>jcoliz.OfxSharp.NetStandard</PackageId>
     <Description>OFX file parser in a .NET Standard library</Description>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
-    <ProjectUrl>https://github.com/jcoliz/OFXSharp</ProjectUrl>
+    <PackageProjectUrl>https://github.com/jcoliz/OFXSharp</PackageProjectUrl>
     <Authors>jhollingworth, kevencarneiro, Jehoel</Authors>
     <PackageTags>OFX;money;fintech;parser</PackageTags>
     <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
