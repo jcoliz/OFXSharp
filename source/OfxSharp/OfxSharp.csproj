@@ -20,19 +20,11 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Compile Remove="Parser\OfxDocumentParser.cs" />
-  </ItemGroup>
-
-  <ItemGroup>
     <None Remove="ofx160.trimmed.dtd" />
   </ItemGroup>
 
   <ItemGroup>
     <EmbeddedResource Include="ofx160.trimmed.dtd" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <None Include="Parser\OfxDocumentParser.cs" />
   </ItemGroup>
 
   <ItemGroup>
