@@ -2,6 +2,7 @@
 
 [![Contributor Covenant](https://img.shields.io/badge/Contributor%20Covenant-2.1-4baaaa.svg)](code_of_conduct.md)
 [![Build+Test](https://github.com/jcoliz/OFXSharp/actions/workflows/build+test.yml/badge.svg)](https://github.com/jcoliz/OFXSharp/actions/workflows/build+test.yml)
+[![codecov](https://codecov.io/gh/jcoliz/OFXSharp/branch/master/graph/badge.svg?token=ZEEI1XY4IH)](https://codecov.io/gh/jcoliz/OFXSharp)
 [![Release](https://github.com/jcoliz/OFXSharp/actions/workflows/release.yml/badge.svg)](https://github.com/jcoliz/OFXSharp/actions/workflows/release.yml)
 ![Nuget](https://img.shields.io/nuget/v/jcoliz.OfxSharp.NetStandard)
 
