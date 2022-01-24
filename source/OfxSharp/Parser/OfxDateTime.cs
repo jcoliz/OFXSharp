@@ -166,8 +166,12 @@ namespace OfxSharp
                     errorMessage = null;
                     return true;
                 }
-                else if( Int32.TryParse( zoneOffsetMinutesStr, NumberStyles.Integer, CultureInfo.InvariantCulture, out Int32 mins ) )
+                else 
                 {
+                    // In current code, this can't fail, because the _zoneFmt has protected against any failing
+                    // values getting here.
+                    Int32 mins = Int32.Parse( zoneOffsetMinutesStr, NumberStyles.Integer, CultureInfo.InvariantCulture);
+
                     TimeSpan minutesSpan = TimeSpan.FromMinutes(mins); // <-- This is always an unsigned absolute value (magnitude).
 
                     if( hours < 0 )
@@ -183,12 +187,17 @@ namespace OfxSharp
                         return true;
                     }
                 }
+#if FALSE
+                // Unreachable code
+                // Because the _zoneFmt which precedes this won't match anything that would fail the tryparse
+                // above
                 else
                 {
                     offset       = default;
                     errorMessage = "Couldn't parse \"{0}\" as GMT offset minutes.".Fmt( zoneOffsetMinutesStr );
                     return true;
                 }
+#endif
             }
             else
             {

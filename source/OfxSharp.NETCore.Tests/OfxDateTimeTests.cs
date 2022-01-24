@@ -34,6 +34,8 @@ namespace OfxSharp.NETCore.Tests
             TestParse( @"20210102030405.999", new DateTimeOffset( year: 2021, month:  1, day: 2, hour:  3, minute:  4, second: 5, millisecond: 999, offset: TimeSpan.Zero ) ); 
             TestParse( @"20210102030405.100", new DateTimeOffset( year: 2021, month:  1, day: 2, hour:  3, minute:  4, second: 5, millisecond: 100, offset: TimeSpan.Zero ) );
             TestParse( @"20210102030405.001", new DateTimeOffset( year: 2021, month:  1, day: 2, hour:  3, minute:  4, second: 5, millisecond:   1, offset: TimeSpan.Zero ) );
+
+            TestParse( @"20140304100000[-03:EST]", new DateTimeOffset( year: 2014, month: 3, day: 4, hour: 10, minute: 0, second: 0, millisecond: 0, offset: TimeSpan.FromHours(-3) ) );
         }
 
         [Test]
@@ -51,6 +53,7 @@ namespace OfxSharp.NETCore.Tests
         {
             //               yyyyMMddHHmmSS.XXX[zz:nom]
             TestParseNull( @"00000000000000.000[-8.00:PST]", expectedOK: true );
+            TestParseNull( @"00000000000000.000[+8.00:CES]", expectedOK: true );
 
             //               yyyyMMddHHmmSS.XXX
             TestParseNull( @"00000000000000.000", expectedOK: true );
@@ -78,6 +81,9 @@ namespace OfxSharp.NETCore.Tests
             TestParse( @"20210102030405.999[-12:IDL]", new DateTimeOffset( year: 2021, month:  1, day: 2, hour:  3, minute:  4, second: 5, millisecond: 999, offset: TimeSpan.FromHours(-12) ) ); 
             TestParse( @"20210102030405.100[-12:IDL]", new DateTimeOffset( year: 2021, month:  1, day: 2, hour:  3, minute:  4, second: 5, millisecond: 100, offset: TimeSpan.FromHours(-12) ) );
             TestParse( @"20210102030405.001[-12:IDL]", new DateTimeOffset( year: 2021, month:  1, day: 2, hour:  3, minute:  4, second: 5, millisecond:   1, offset: TimeSpan.FromHours(-12) ) );
+
+            // Unparseable zone name just turns to zero
+            TestParse( @"20210102030405.001[-9999999999999999999999999999999999999:IDL]", new DateTimeOffset( year: 2021, month: 1, day: 2, hour: 3, minute: 4, second: 5, millisecond: 1, offset: TimeSpan.Zero ) );
 
             TestParse( @"19961005132200.124[+12:Hmmmm]", new DateTimeOffset( year: 1996, month: 10, day: 5, hour: 13, minute: 22, second: 0, millisecond: 124, offset: TimeSpan.FromHours(12) ) );
             TestParse( @"20210102030405.999[+12:Hmmmm]", new DateTimeOffset( year: 2021, month:  1, day: 2, hour:  3, minute:  4, second: 5, millisecond: 999, offset: TimeSpan.FromHours(12) ) ); 
@@ -121,5 +127,36 @@ namespace OfxSharp.NETCore.Tests
             _ = ok.Should().Be( expectedOK );
             _ = parsedValue.Should().BeNull();
         }
+
+        [TestCase( "00000102030405.001[-5:EST]" )]
+        [TestCase( "20140304100000[-03:   ]" )]
+        [TestCase( "20069999999999.124[-5.15:   ]" )]
+        [TestCase( "" )]
+        public void TryParseOfxDateTime_IsFalse(string input)
+        {
+            TestParseNull(input,false);
+        }
+
+        [TestCase( "00000000000000" )]
+        [TestCase( "20069999999999.124[-5.15:   ]" )]
+        public void RequireParseOfxDateTime_Throws(string input)
+        {
+            Assert.Throws<FormatException>(() => { OfxDateTime.RequireParseOfxDateTime( input ); } );
+        }
+
+        [TestCase( "20069999999999.124[-5.15:   ]" )]
+        public void RequireOptionalParseOfxDateTime_Throws( string input )
+        {
+            Assert.Throws<FormatException>( () => { OfxDateTime.RequireOptionalParseOfxDateTime( input ); } );
+        }
+
+        [TestCase( "20069999999999.124[-5.15:   ]" )]
+        [TestCase( "" )]
+        public void MaybeParse_IsNull( string input )
+        {
+            var result = OfxDateTime.MaybeParseOfxDateTime( input );
+            Assert.IsNull( result );
+        }
+
     }
 }
