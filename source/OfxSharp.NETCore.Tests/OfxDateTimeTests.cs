@@ -132,6 +132,8 @@ namespace OfxSharp.NETCore.Tests
         [TestCase( "20140304100000[-03:   ]" )]
         [TestCase( "20069999999999.124[-5.15:   ]" )]
         [TestCase( "" )]
+        [TestCase( "20210102030405.001[GMT]" )]
+        [TestCase( "20210102030405.001[:GMT]" )]
         public void TryParseOfxDateTime_IsFalse(string input)
         {
             TestParseNull(input,false);

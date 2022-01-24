@@ -153,8 +153,8 @@ namespace OfxSharp
 
         private static Boolean TryParseOffset( Match zoneFmtMatch, out TimeSpan offset, out String errorMessage )
         {
-            String zoneOffsetHoursStr   = zoneFmtMatch.Groups["hours"]  ?.Value ?? String.Empty;
-            String zoneOffsetMinutesStr = zoneFmtMatch.Groups["minutes"]?.Value ?? String.Empty;
+            String zoneOffsetHoursStr   = zoneFmtMatch.Groups["hours"].Value;
+            String zoneOffsetMinutesStr = zoneFmtMatch.Groups["minutes"].Value;
 
             if( Int32.TryParse( zoneOffsetHoursStr, NumberStyles.Integer, CultureInfo.InvariantCulture, out Int32 hours ) )
             {
@@ -209,10 +209,17 @@ namespace OfxSharp
 
         private static Boolean TryCreateDateTimeOffset( Match m, TimeSpan offset, out DateTimeOffset? value, out String errorMessage )
         {
+            // Note that there is no current case where we could reach this code WITHOUT having the success criteria for these 
+            // conditionals met. The composition of the regexes ensures it.
+            Int32 year        = ParseInt32( m.Groups["year"   ] .Value );
+            Int32 month       = ParseInt32( m.Groups["month"  ] .Value );
+            Int32 day         = ParseInt32( m.Groups["day"    ] .Value );
+
+#if false
             Int32 year        = m.Groups["year"   ] is Group yearGrp    && yearGrp   .Success ? ParseInt32( yearGrp   .Value ) : 0;
             Int32 month       = m.Groups["month"  ] is Group monthGrp   && monthGrp  .Success ? ParseInt32( monthGrp  .Value ) : 0;
             Int32 day         = m.Groups["day"    ] is Group dayGrp     && dayGrp    .Success ? ParseInt32( dayGrp    .Value ) : 0;
-            
+#endif            
             Int32 hour        = m.Groups["hours"  ] is Group hoursGrp   && hoursGrp  .Success ? ParseInt32( hoursGrp  .Value ) : 0;
             Int32 minute      = m.Groups["minutes"] is Group minutesGrp && minutesGrp.Success ? ParseInt32( minutesGrp.Value ) : 0;
             Int32 second      = m.Groups["seconds"] is Group secondsGrp && secondsGrp.Success ? ParseInt32( secondsGrp.Value ) : 0;
