@@ -271,6 +271,25 @@ namespace OfxSharp.NETCore.Tests
             AssertThatItauOfxLoadedOk( ofx );
         }
 
+        [Test]
+        public void ReadSingleTransaction()
+        {
+            OfxDocument ofx = OfxDocumentReader.FromSgmlFile( filePath: "Files/single-transaction.ofx" );
+
+            Assert.AreEqual( 1, ofx.Statements.SelectMany( x => x.Transactions ).Count() );
+
+            var tx = ofx.Statements.Single().Transactions.Single();
+
+            Assert.AreEqual( "SIC", tx.Sic );
+            Assert.AreEqual( "SRVRTID", tx.ServerTransactionId );
+            Assert.AreEqual( "USD", tx.OriginalCurrency );
+            Assert.AreEqual( "CORRECTFITID", tx.IncorrectTransactionId );
+            Assert.AreEqual( "RSHOP", tx.Memo );
+            Assert.AreEqual( "REFNUM", tx.ReferenceNumber );
+            Assert.AreEqual( "PAYEEID", tx.PayeeId );
+            Assert.AreEqual( "USD", tx.OriginalCurrency );
+        }
+
         private static void AssertThatItauOfxLoadedOk(OfxDocument ofx)
         {
             ofx.HasSingleStatement( out SingleStatementOfxDocument ofxDocument ).Should().BeTrue();
