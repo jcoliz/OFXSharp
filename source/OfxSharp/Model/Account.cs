@@ -55,7 +55,7 @@ namespace OfxSharp
             public BankAccount( XmlElement bankAccountElement )
                 : base( bankAccountElement, AccountType.BANK )
             {
-                if( bankAccountElement is null ) throw new ArgumentNullException( nameof( bankAccountElement ) );
+                // Note: Don't need to check bankAccountElement against null because the base class handled that
 
                 this.BankId          = bankAccountElement.GetSingleElementChildTextOrNull( "BANKID"   );
                 this.BranchId        = bankAccountElement.GetSingleElementChildTextOrNull( "BRANCHID" );
@@ -77,7 +77,7 @@ namespace OfxSharp
             public CreditAccount( XmlElement creditAccountElement )
                 : base( creditAccountElement, AccountType.CC )
             {
-                if( creditAccountElement is null ) throw new ArgumentNullException( nameof( creditAccountElement ) );
+                // Note: Don't need to check creditAccountElement against null because the base class handled that
             }
         }
 
