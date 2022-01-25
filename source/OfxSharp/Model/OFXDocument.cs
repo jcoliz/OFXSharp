@@ -22,18 +22,14 @@ namespace OfxSharp
         }
 
         public static IEnumerable<OfxStatementResponse> GetStatements( XmlElement bankMessageResponse )
-        {
-            if( bankMessageResponse is null )
-                return Enumerable.Empty<OfxStatementResponse>();
-
-            return bankMessageResponse
+            => bankMessageResponse?
                 .AssertIsElement( "BANKMSGSRSV1" )
                 .GetChildNodes( "STMTTRNRS" )
                 .Select
                 (
                     n => OfxStatementResponse.FromSTMTTRNRS( n.AssertIsElement( "STMTTRNRS" ) )
-                );
-        }
+                )
+                ?? Enumerable.Empty<OfxStatementResponse>();
 
         public OfxDocument( SignOnResponse signOn, IEnumerable<OfxStatementResponse> statements )
         {
@@ -43,10 +39,10 @@ namespace OfxSharp
         }
 
         /// <summary>SIGNONMSGSRSV1. Required. Cannot be null.</summary>
-        public SignOnResponse SignOn { get; set; }
+        public SignOnResponse SignOn { get; private set; }
 
         /// <summary>BANKMSGSRSV1/STMTTRNRS</summary>
-        public IEnumerable<OfxStatementResponse> Statements { get; } = Enumerable.Empty<OfxStatementResponse>();
+        public IEnumerable<OfxStatementResponse> Statements { get; private set; }
 
         //
 
