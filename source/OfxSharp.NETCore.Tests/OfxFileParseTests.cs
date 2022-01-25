@@ -188,12 +188,75 @@ namespace OfxSharp.NETCore.Tests
         }
 
         [Test]
+        public async Task Docfile_ReadFileAsync()
+        {
+            var fileinfo = new FileInfo( "Files/itau.ofx" );
+            var docfile = await OfxDocumentFile.ReadFileAsync(fileinfo);
+            var ofx = docfile.OfxDocument;
+
+            AssertThatItauOfxLoadedOk( ofx );
+        }
+
+        [Test]
+        public void Docfile_ReadFile()
+        {
+            var fileinfo = new FileInfo( "Files/itau.ofx" );
+            var docfile = OfxDocumentFile.ReadFile(fileinfo);
+            var ofx = docfile.OfxDocument;
+
+            AssertThatItauOfxLoadedOk( ofx );
+        }
+
+        [Test]
+        public void Docfile_GetFile()
+        {
+            var fileinfo = new FileInfo( "Files/itau.ofx" );
+            var docfile = OfxDocumentFile.ReadFile(fileinfo);
+            Assert.AreEqual( fileinfo, docfile.File );
+        }
+
+        [Test]
+        public void Docfile_ImplicitOperator()
+        {
+            var fileinfo = new FileInfo( "Files/itau.ofx" );
+            var docfile = OfxDocumentFile.ReadFile(fileinfo);
+
+            AssertThatItauOfxLoadedOk( docfile );
+        }
+
+        [Test]
+        public void Docfile_ReadAsyncNull()
+            => Assert.ThrowsAsync<ArgumentNullException>( async ()=> await OfxDocumentFile.ReadFileAsync( null ) );
+
+        [Test]
+        public void Docfile_ReadNull()
+            => Assert.Throws<ArgumentNullException>( () => OfxDocumentFile.ReadFile( null ) );
+
+        [Test]
+        public void Docfile_ConstructNullDoc()
+            => Assert.Throws<ArgumentNullException>( () => new OfxDocumentFile( null,null ) );
+
+        [Test]
+        public void Docfile_ConstructNullFileinfo()
+        {
+            var fileinfo = new FileInfo( "Files/itau.ofx" );
+            var docfile = OfxDocumentFile.ReadFile(fileinfo);
+
+            Assert.Throws<ArgumentNullException>( () => new OfxDocumentFile( docfile, null ) );
+        }
+
+        [Test]
         public async Task Should_read_ITAU_statements_DocFile()
         {
             var fileinfo = new FileInfo( "Files/itau.ofx" );
             var docfile = await OfxDocumentFile.ReadFileAsync(fileinfo);
             var ofx = docfile.OfxDocument;
 
+            AssertThatItauOfxLoadedOk( ofx );
+        }
+
+        private static void AssertThatItauOfxLoadedOk(OfxDocument ofx)
+        {
             ofx.HasSingleStatement( out SingleStatementOfxDocument ofxDocument ).Should().BeTrue();
 
             ofxDocument.Should().NotBeNull();
@@ -206,8 +269,8 @@ namespace OfxSharp.NETCore.Tests
 
             ofxDocument.Transactions.Count.Should().Be( 3 );
             ofxDocument.Transactions.Sum( x => x.Amount ).Should().Be( -644.44M );
-        }
 
+        }
 
         private static void AsertCommonSecondLudditeStatement( OfxStatementResponse stmt, Int32 txnCount, Decimal ledgerBal, Decimal? availableBal )
         {
