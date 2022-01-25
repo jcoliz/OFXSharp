@@ -104,34 +104,19 @@ namespace OfxSharp
 
         private static XmlDocument ConvertSgmlToXml( TextReader reader )
         {
-            // Convert SGML to XML:
-            try
-            {
-                SgmlDtd ofxSgmlDtd = ReadOfxSgmlDtd();
-
-                SgmlReader sgmlReader = new SgmlReader();
-                sgmlReader.WhitespaceHandling = WhitespaceHandling.None; // hmm, this doesn't work.
-                // Hopefully the next update to `` will include my changes to support trimmed output: https://github.com/lovettchris/SgmlReader/issues/15
-                sgmlReader.InputStream        = reader;
-                sgmlReader.DocType            = "OFX"; // <-- This causes DTD magic to happen. I don't know where it gets the DTD from though.
-                sgmlReader.Dtd                = ofxSgmlDtd;
-
-                // https://stackoverflow.com/questions/1346995/how-to-create-a-xmldocument-using-xmlwriter-in-net
-                XmlDocument doc = new XmlDocument(); 
-                using( XmlWriter xmlWriter = doc.CreateNavigator().AppendChild() ) 
-                { 
-                    while( !sgmlReader.EOF )
-                    {
-                        xmlWriter.WriteNode( sgmlReader, defattr: true );
-                    }
+            XmlDocument result = new XmlDocument();
+            result.Load
+            (
+                new SgmlReader()
+                {
+                    WhitespaceHandling = WhitespaceHandling.None,
+                    InputStream = reader,
+                    DocType = "OFX",
+                    Dtd = ReadOfxSgmlDtd()
                 }
+           );
                 
-                return doc;
-            }
-            catch( Exception )
-            {
-                throw;
-            }
+           return result;
         }
 
         private static Stream OpenEmbeddedResource( string filename )
