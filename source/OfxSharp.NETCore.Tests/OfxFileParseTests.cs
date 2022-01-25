@@ -21,19 +21,35 @@ namespace OfxSharp.NETCore.Tests
         {
             OfxDocument ofx = OfxDocumentReader.FromSgmlFile( filePath: "Files/itau.ofx" );
 
-            ofx.HasSingleStatement( out SingleStatementOfxDocument ofxDocument ).Should().BeTrue();
-
-            ofxDocument.Should().NotBeNull();
-            ofxDocument.StatementStart.Should().Be(new DateTimeOffset(2013, 12,  5, 10, 0, 0, TimeSpan.FromHours(-3))); // "20131205100000[-03:EST]" -> 2013-12-05 10:00:00-03:00
-            ofxDocument.StatementEnd  .Should().Be(new DateTimeOffset(2014,  2, 28, 10, 0, 0, TimeSpan.FromHours(-3))); // "20140228100000[-03:EST]" -> 2014-02-28 10:00:00-03:00
-
-            Account.BankAccount acc = ofxDocument.Account.Should().BeOfType<Account.BankAccount>().Subject;
-            acc.AccountId.Trim().Should().Be("9999999999");
-            acc.BankId   .Trim().Should().Be("0341");
-
-            ofxDocument.Transactions.Count.Should().Be(3);
-            ofxDocument.Transactions.Sum(x => x.Amount).Should().Be(-644.44M);
+            AssertThatItauOfxLoadedOk( ofx );
         }
+
+        [Test]
+        public async Task FromSgmlStreamAsync()
+        {
+            using var stream = File.OpenRead("Files/itau.ofx");
+            OfxDocument ofx = await OfxDocumentReader.FromSgmlFileAsync( stream );
+
+            AssertThatItauOfxLoadedOk( ofx );
+        }
+
+        [Test]
+        public async Task FromSgmlTextReaderAsync()
+        {
+            using var stream = File.OpenRead("Files/itau.ofx");
+            using var reader = new StreamReader(stream);
+            OfxDocument ofx = await OfxDocumentReader.FromSgmlFileAsync( reader );
+
+            AssertThatItauOfxLoadedOk( ofx );
+        }
+
+        [Test]
+        public void FromSgmlTextReaderAsyncNullFails()
+            => Assert.ThrowsAsync<ArgumentNullException>( async () => await OfxDocumentReader.FromSgmlFileAsync( (TextReader)null ) );
+
+        [Test]
+        public void FromSgmlTextReaderNullFails()
+            => Assert.Throws<ArgumentNullException>( () => OfxDocumentReader.FromSgmlFile( (TextReader)null ) );
 
         [Test]
         public void Should_read_Santander_statements()
