@@ -100,7 +100,7 @@ namespace OfxSharp.NETCore.Tests
             ofx.SignOn.Institution.Name.Should().Be( "Second Luddite Federal Credit Union" );
             ofx.SignOn.Institution.FId.Should().Be( 9999 );
 
-            ofx.Statements.Count.Should().Be( 7 );
+            ofx.Statements.Count().Should().Be( 7 );
 
             {
                 OfxStatementResponse stmt = ofx.Statements.Single( st => st.AccountFrom.AccountId == "1111111111" );

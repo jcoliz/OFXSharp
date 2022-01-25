@@ -15,46 +15,44 @@ namespace OfxSharp
             XmlElement signOnMessageResponse = ofxElement.RequireSingleElementChild("SIGNONMSGSRSV1");
             XmlElement bankMessageResponse   = ofxElement.GetSingleElementChildOrNull("BANKMSGSRSV1");
 
-            IEnumerable<OfxStatementResponse> statements = Enumerable.Empty<OfxStatementResponse>();
-            if( !( bankMessageResponse is null ) )
-                statements = GetStatements( bankMessageResponse );
-
             return new OfxDocument(
                 signOn    : SignOnResponse.FromXmlElement( signOnMessageResponse ),
-                statements: statements
+                statements: GetStatements( bankMessageResponse )
             );
         }
 
         public static IEnumerable<OfxStatementResponse> GetStatements( XmlElement bankMessageResponse )
         {
-            _ = bankMessageResponse.AssertIsElement( "BANKMSGSRSV1" );
+            if( bankMessageResponse is null )
+                return Enumerable.Empty<OfxStatementResponse>();
 
-            foreach( XmlElement stmTrnResponse in bankMessageResponse.GetChildNodes("STMTTRNRS") )
-            {
-                XmlElement stmtTrnRs = stmTrnResponse.AssertIsElement("STMTTRNRS");
-
-                yield return OfxStatementResponse.FromSTMTTRNRS( stmtTrnRs );
-            }
+            return bankMessageResponse
+                .AssertIsElement( "BANKMSGSRSV1" )
+                .GetChildNodes( "STMTTRNRS" )
+                .Select
+                (
+                    n => OfxStatementResponse.FromSTMTTRNRS( n.AssertIsElement( "STMTTRNRS" ) )
+                );
         }
 
         public OfxDocument( SignOnResponse signOn, IEnumerable<OfxStatementResponse> statements )
         {
-            this.SignOn = signOn?? throw new ArgumentNullException( nameof( signOn ) );
+            this.SignOn = signOn ?? throw new ArgumentNullException( nameof( signOn ) );
 
-            this.Statements.AddRange( statements );
+            this.Statements = new List<OfxStatementResponse>( statements );
         }
 
         /// <summary>SIGNONMSGSRSV1. Required. Cannot be null.</summary>
         public SignOnResponse SignOn { get; set; }
 
         /// <summary>BANKMSGSRSV1/STMTTRNRS</summary>
-        public List<OfxStatementResponse> Statements { get; } = new List<OfxStatementResponse>();
+        public IEnumerable<OfxStatementResponse> Statements { get; } = Enumerable.Empty<OfxStatementResponse>();
 
         //
 
         public Boolean HasSingleStatement( out SingleStatementOfxDocument doc )
         {
-            if( this.Statements.Count == 1 )
+            if( this.Statements.Count() == 1 )
             {
                 doc = new SingleStatementOfxDocument( this );
                 return true;
