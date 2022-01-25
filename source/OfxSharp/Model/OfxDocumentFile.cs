@@ -10,7 +10,8 @@ namespace OfxSharp
     public class OfxDocumentFile
     {
         /// <summary>Returns a cached instance of <c>Encoding.GetEncoding( codepage: 1252 )</c>.</summary>
-        public static Encoding Windows1252 { get; } = Encoding.GetEncoding( codepage: 1252 );
+        /// https://stackoverflow.com/questions/37870084/net-core-doesnt-know-about-windows-1252-how-to-fix
+        public static Encoding Windows1252 { get; } = CodePagesEncodingProvider.Instance.GetEncoding( 1252 );
 
         /// <summary></summary>
         /// <param name="ofxFileInfo"></param>
