@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Globalization;
+using System.Linq;
 using System.Xml;
 
 namespace OfxSharp
@@ -12,11 +13,15 @@ namespace OfxSharp
             _ = ofxElement.AssertIsElement( "OFX" );
 
             XmlElement signOnMessageResponse = ofxElement.RequireSingleElementChild("SIGNONMSGSRSV1");
-            XmlElement bankMessageResponse   = ofxElement.RequireSingleElementChild("BANKMSGSRSV1");
+            XmlElement bankMessageResponse   = ofxElement.GetSingleElementChildOrNull("BANKMSGSRSV1");
+
+            IEnumerable<OfxStatementResponse> statements = Enumerable.Empty<OfxStatementResponse>();
+            if( !( bankMessageResponse is null ) )
+                statements = GetStatements( bankMessageResponse );
 
             return new OfxDocument(
                 signOn    : SignOnResponse.FromXmlElement( signOnMessageResponse ),
-                statements: GetStatements( bankMessageResponse )
+                statements: statements
             );
         }
 
