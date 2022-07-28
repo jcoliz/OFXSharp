@@ -14,6 +14,8 @@
     <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
     <Version>$(GitVersion)</Version>
     <Company>jcoliz</Company>
+    <SignAssembly>True</SignAssembly>
+    <AssemblyOriginatorKeyFile>OfxSharp.snk</AssemblyOriginatorKeyFile>    
   </PropertyGroup>
 
   <ItemGroup>
