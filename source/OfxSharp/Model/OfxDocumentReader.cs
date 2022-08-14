@@ -20,12 +20,55 @@ namespace OfxSharp
         }
 
         #region Non-async
+        public static OfxDocument ReadFile ( string filePath )
+        {
+            using( FileStream fs = new FileStream( filePath, FileMode.Open, FileAccess.Read, FileShare.Read, bufferSize: 4096, FileOptions.SequentialScan ) )
+            {
+                return ReadFile( fs );
+            }
 
-        /// <summary></summary>
-        /// <param name="filePath"></param>
-        /// <param name="cultureOrNullForAutodetect">TODO: Use the &quot;LANGUAGE&quot; element to detect numeric formatting.</param>
-        /// <returns></returns>
-        public static OfxDocument FromSgmlFile( String filePath )//, CultureInfo cultureOrNullForAutodetect )
+        }
+        public static OfxDocument ReadFile ( Stream stream )
+        {
+            using( StreamReader reader = new StreamReader(stream) )
+            {
+                return ReadFile( reader: reader );
+            }
+
+        }
+        public static OfxDocument ReadFile( StreamReader reader )
+        {
+            if( reader is null ) throw new ArgumentNullException( nameof( reader ) );
+                
+            var ofxheader = new char[100]; // 100 character span
+            if (reader.Read(ofxheader, 0, 100) > 0 )
+            {
+                // This will restart streamreader from the beginning of the file.
+                reader.DiscardBufferedData();
+                reader.BaseStream.Seek( 0, SeekOrigin.Begin );
+
+                string result = new string(ofxheader);
+                    
+                // If we don't find an OFX 1.0 header, then get XM directly
+                if (result.IndexOf("OFXHEADER:100") == -1 )
+                {
+                    return FromXMLFile( reader: reader );
+                } else
+                {
+                    return FromSgmlFile( reader: reader );
+                }
+
+            }
+            // We should never get here unless something is wrong with the file.
+            return null;
+
+        }
+
+            /// <summary></summary>
+            /// <param name="filePath"></param>
+            /// <param name="cultureOrNullForAutodetect">TODO: Use the &quot;LANGUAGE&quot; element to detect numeric formatting.</param>
+            /// <returns></returns>
+            public static OfxDocument FromSgmlFile( String filePath )//, CultureInfo cultureOrNullForAutodetect )
         {
             using( FileStream fs = new FileStream( filePath, FileMode.Open, FileAccess.Read, FileShare.Read, bufferSize: 4096, FileOptions.SequentialScan ) )
             {
@@ -49,6 +92,36 @@ namespace OfxSharp
             IReadOnlyDictionary<String,String> header = ReadOfxFileHeaderUntilStartOfSgml( reader );
 
             XmlDocument doc = ConvertSgmlToXml( reader );
+
+            #if DEBUG
+            String xmlDocString = doc.ToXmlString();
+            #endif
+
+            return OfxDocument.FromXmlElement( doc.DocumentElement );
+        }
+
+        public static OfxDocument FromXMLFile ( String filePath )
+        {
+            using( FileStream fs = new FileStream( filePath, FileMode.Open, FileAccess.Read, FileShare.Read, bufferSize: 4096, FileOptions.SequentialScan ) )
+            {
+                return FromXMLFile( fs );
+            }
+
+        }
+
+        public static OfxDocument FromXMLFile( Stream stream )
+        {
+            using( StreamReader rdr = new StreamReader( stream ) )
+            {
+                return FromXMLFile( reader: rdr );
+            }
+        }
+        public static OfxDocument FromXMLFile( TextReader reader )
+        {
+            if( reader is null ) throw new ArgumentNullException( nameof( reader ) );
+
+            XmlDocument doc = new XmlDocument();
+            doc.Load(reader);
 
             #if DEBUG
             String xmlDocString = doc.ToXmlString();
