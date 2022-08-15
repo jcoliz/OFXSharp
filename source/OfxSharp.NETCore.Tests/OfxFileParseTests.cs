@@ -17,9 +17,9 @@ namespace OfxSharp.NETCore.Tests
         }
 
         [Test]
-        public void Should_read_non_standard_statements()
+        public void Should_read_ofx2_statements()
         {
-            OfxDocument ofx = OfxDocumentReader.ReadFile( filePath: "Files/non-standard.qfx");
+            OfxDocument ofx = OfxDocumentReader.ReadFile( filePath: "Files/bank-banking-xml.ofx");
         }
 
         [Test]
