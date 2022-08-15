@@ -5,11 +5,15 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <None Remove="Files\bank-banking-xml.ofx" />
     <None Remove="Files\single-transaction.ofx" />
   </ItemGroup>
 
   <ItemGroup>
     <Content Include="Files\bradesco.ofx">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Files\bank-banking-xml.ofx">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="Files\single-transaction.ofx">
