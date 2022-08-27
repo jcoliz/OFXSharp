@@ -23,6 +23,12 @@ namespace OfxSharp.NETCore.Tests
         }
 
         [Test]
+        public void Should_fail_reading_not_ofx()
+        {
+            Assert.Throws<InvalidOperationException>( () => OfxDocumentReader.ReadFile( filePath: "Files/not-an-ofx-file.ofx"));
+        }
+
+        [Test]
         public void Should_read_ITAU_statements()
         {
             OfxDocument ofx = OfxDocumentReader.ReadFile( filePath: "Files/itau.ofx" );
