@@ -99,22 +99,6 @@ namespace OfxSharp
             return OfxDocument.FromXmlElement( doc.DocumentElement );
         }
 
-        public static OfxDocument FromXMLFile ( String filePath )
-        {
-            using( FileStream fs = new FileStream( filePath, FileMode.Open, FileAccess.Read, FileShare.Read, bufferSize: 4096, FileOptions.SequentialScan ) )
-            {
-                return FromXMLFile( fs );
-            }
-
-        }
-
-        public static OfxDocument FromXMLFile( Stream stream )
-        {
-            using( StreamReader rdr = new StreamReader( stream ) )
-            {
-                return FromXMLFile( reader: rdr );
-            }
-        }
         public static OfxDocument FromXMLFile( TextReader reader )
         {
             if( reader is null ) throw new ArgumentNullException( nameof( reader ) );
