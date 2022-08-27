@@ -39,36 +39,35 @@ namespace OfxSharp
         public static OfxDocument ReadFile( StreamReader reader )
         {
             if( reader is null ) throw new ArgumentNullException( nameof( reader ) );
+            
+            // Read in a snippet of the header to determine whehter file is OFX 1.x or 2.x
+            const int min_header_size = 100;
+            var ofxheaderbuffer = new char[min_header_size];
+            if (reader.Read(ofxheaderbuffer, 0, min_header_size) < min_header_size )
+                throw new InvalidOperationException( "File is too small to be an OFX file." );
+            string ofxheader = new string(ofxheaderbuffer);
+
+            // Reset streamreader
+            reader.DiscardBufferedData();
+            reader.BaseStream.Seek( 0, SeekOrigin.Begin );
                 
-            var ofxheader = new char[100]; // 100 character span
-            if (reader.Read(ofxheader, 0, 100) > 0 )
+            // If it's OFX v1, load as SGML
+            if (ofxheader.Contains("OFXHEADER:100"))
             {
-                // This will restart streamreader from the beginning of the file.
-                reader.DiscardBufferedData();
-                reader.BaseStream.Seek( 0, SeekOrigin.Begin );
-
-                string result = new string(ofxheader);
-                    
-                // If we don't find an OFX 1.0 header, then get XM directly
-                if (result.IndexOf("OFXHEADER:100") == -1 )
-                {
-                    return FromXMLFile( reader: reader );
-                } else
-                {
-                    return FromSgmlFile( reader: reader );
-                }
-
+                return FromSgmlFile( reader: reader );
+            } 
+            // Else it's OFX v2, so load as XML directly
+            else
+            {
+                return FromXMLFile( reader: reader );
             }
-            // We should never get here unless something is wrong with the file.
-            return null;
-
         }
 
-            /// <summary></summary>
-            /// <param name="filePath"></param>
-            /// <param name="cultureOrNullForAutodetect">TODO: Use the &quot;LANGUAGE&quot; element to detect numeric formatting.</param>
-            /// <returns></returns>
-            public static OfxDocument FromSgmlFile( String filePath )//, CultureInfo cultureOrNullForAutodetect )
+        /// <summary></summary>
+        /// <param name="filePath"></param>
+        /// <param name="cultureOrNullForAutodetect">TODO: Use the &quot;LANGUAGE&quot; element to detect numeric formatting.</param>
+        /// <returns></returns>
+        public static OfxDocument FromSgmlFile( String filePath )//, CultureInfo cultureOrNullForAutodetect )
         {
             using( FileStream fs = new FileStream( filePath, FileMode.Open, FileAccess.Read, FileShare.Read, bufferSize: 4096, FileOptions.SequentialScan ) )
             {
