@@ -17,9 +17,21 @@ namespace OfxSharp.NETCore.Tests
         }
 
         [Test]
+        public void Should_read_ofx2_statements()
+        {
+            OfxDocument ofx = OfxDocumentReader.ReadFile( filePath: "Files/bank-banking-xml.ofx");
+        }
+
+        [Test]
+        public void Should_fail_reading_not_ofx()
+        {
+            Assert.Throws<InvalidOperationException>( () => OfxDocumentReader.ReadFile( filePath: "Files/not-an-ofx-file.ofx"));
+        }
+
+        [Test]
         public void Should_read_ITAU_statements()
         {
-            OfxDocument ofx = OfxDocumentReader.FromSgmlFile( filePath: "Files/itau.ofx" );
+            OfxDocument ofx = OfxDocumentReader.ReadFile( filePath: "Files/itau.ofx" );
 
             AssertThatItauOfxLoadedOk( ofx );
         }
@@ -54,7 +66,7 @@ namespace OfxSharp.NETCore.Tests
         [Test]
         public void Should_read_Santander_statements()
         {
-            OfxDocument ofx = OfxDocumentReader.FromSgmlFile( filePath: "Files/santander.ofx" );
+            OfxDocument ofx = OfxDocumentReader.ReadFile( filePath: "Files/santander.ofx" );
             ofx.HasSingleStatement( out SingleStatementOfxDocument ofxDocument ).Should().BeTrue();
 
             ofxDocument.Should().NotBeNull();
@@ -72,7 +84,7 @@ namespace OfxSharp.NETCore.Tests
         [Test]
         public void Should_read_Bradseco_statements()
         {
-            OfxDocument ofx = OfxDocumentReader.FromSgmlFile( filePath: "Files/bradesco.ofx" );
+            OfxDocument ofx = OfxDocumentReader.ReadFile( filePath: "Files/bradesco.ofx" );
             ofx.HasSingleStatement( out SingleStatementOfxDocument ofxDocument ).Should().BeTrue();
 
             ofxDocument.Should().NotBeNull();
@@ -90,7 +102,7 @@ namespace OfxSharp.NETCore.Tests
         [Test]
         public void Should_read_SecondLuddite_statements()
         {
-            OfxDocument ofx = OfxDocumentReader.FromSgmlFile( filePath: "Files/secondluddite.ofx" );
+            OfxDocument ofx = OfxDocumentReader.ReadFile( filePath: "Files/secondluddite.ofx" );
             ofx.HasSingleStatement( out _ ).Should().BeFalse();
 
             ofx.SignOn.StatusCode.Should().Be( 0 );

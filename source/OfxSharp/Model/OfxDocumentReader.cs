@@ -20,6 +20,48 @@ namespace OfxSharp
         }
 
         #region Non-async
+        public static OfxDocument ReadFile ( string filePath )
+        {
+            using( FileStream fs = new FileStream( filePath, FileMode.Open, FileAccess.Read, FileShare.Read, bufferSize: 4096, FileOptions.SequentialScan ) )
+            {
+                return ReadFile( fs );
+            }
+
+        }
+        public static OfxDocument ReadFile ( Stream stream )
+        {
+            using( StreamReader reader = new StreamReader(stream) )
+            {
+                return ReadFile( reader: reader );
+            }
+
+        }
+        public static OfxDocument ReadFile( StreamReader reader )
+        {
+            if( reader is null ) throw new ArgumentNullException( nameof( reader ) );
+            
+            // Read in a snippet of the header to determine whehter file is OFX 1.x or 2.x
+            const int min_header_size = 100;
+            var ofxheaderbuffer = new char[min_header_size];
+            if (reader.Read(ofxheaderbuffer, 0, min_header_size) < min_header_size )
+                throw new InvalidOperationException( "File is too small to be an OFX file." );
+            string ofxheader = new string(ofxheaderbuffer);
+
+            // Reset streamreader
+            reader.DiscardBufferedData();
+            reader.BaseStream.Seek( 0, SeekOrigin.Begin );
+                
+            // If it's OFX v1, load as SGML
+            if (ofxheader.Contains("OFXHEADER:100"))
+            {
+                return FromSgmlFile( reader: reader );
+            } 
+            // Else it's OFX v2, so load as XML directly
+            else
+            {
+                return FromXMLFile( reader: reader );
+            }
+        }
 
         /// <summary></summary>
         /// <param name="filePath"></param>
@@ -49,6 +91,20 @@ namespace OfxSharp
             IReadOnlyDictionary<String,String> header = ReadOfxFileHeaderUntilStartOfSgml( reader );
 
             XmlDocument doc = ConvertSgmlToXml( reader );
+
+            #if DEBUG
+            String xmlDocString = doc.ToXmlString();
+            #endif
+
+            return OfxDocument.FromXmlElement( doc.DocumentElement );
+        }
+
+        public static OfxDocument FromXMLFile( TextReader reader )
+        {
+            if( reader is null ) throw new ArgumentNullException( nameof( reader ) );
+
+            XmlDocument doc = new XmlDocument();
+            doc.Load(reader);
 
             #if DEBUG
             String xmlDocString = doc.ToXmlString();
