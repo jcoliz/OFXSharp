@@ -17,7 +17,7 @@ namespace OfxSharp
                 statusSeverity: status        .RequireSingleElementChildText( "SEVERITY" ),
                 dtServer      : signOnResponse.RequireSingleElementChildText( "DTSERVER" ).RequireOptionalParseOfxDateTime(),
                 language      : signOnResponse.RequireSingleElementChildText( "LANGUAGE" ),
-                intuBid       : signOnResponse.GetSingleElementChildOrNull( "INTU.BID", allowDotsInElementName: true )?.RequireSingleTextChildNode() ?? null,
+                intuBid       : signOnResponse.GetSingleElementChildOrNull( "INTU.BID", allowDotsInElementName: true )?.FirstChild.InnerText ?? null,
                 institution   : FinancialInstitution.FromXmlElementOrNull( signOnResponse.GetSingleElementChildOrNull("FI") )
             );
         }
@@ -62,6 +62,9 @@ namespace OfxSharp
 
         /// <summary>Intuit BankId (proprietary to Quicken/Quickbooks).<br />Can be null.<br />OFX/SIGNONMSGSRSV1/SONRS/INTU.BID</summary>
         public string IntuBid { get; }
+
+        /// <summary>Intuit UserId (proprietary to Quicken/Quickbooks).<br />Can be null.<br />OFX/SIGNONMSGSRSV1/SONRS/INTU.USERID</summary>
+        public string IntuUserid { get; }
 
         #endregion
     }
