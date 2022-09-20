@@ -306,13 +306,11 @@ namespace OfxSharp.NETCore.Tests
         public void Issue17()
         {
             // #17 Multiple INTU.XXXX tags causes crash
-            //
-            // Note that this test case attempts to repro issue #17. 
-            // So far I have not been able to repro this.
 
             OfxDocument ofx = OfxDocumentReader.ReadFile( filePath: "Files/issue-17.ofx");
 
             Assert.AreEqual("1234", ofx.SignOn.IntuBid );
+            Assert.AreEqual("USER12345", ofx.SignOn.IntuUserid );
         }
 
         private static void AssertThatItauOfxLoadedOk(OfxDocument ofx)
