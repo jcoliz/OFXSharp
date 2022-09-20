@@ -519,12 +519,17 @@
 <!ELEMENT ONETIMEPASS   - o %TEMPPASSTYPE>
 <!ELEMENT SESSCOOKIE    - o %SESSCOOKIETYPE>
 
+<!-- INTU extension -->
+<!ELEMENT INTU.BID      - o %GENNAMETYPE>
+<!ELEMENT INTU.USERID   - o %GENNAMETYPE>
+
 <!-- Signon Response version 2 adds country for non-US -->
 <!-- OFX 1.5 -->
 <!-- ADDED COUNTRY -->
 <!ELEMENT SONRS		- - (STATUS , DTSERVER , USERKEY? , 
                          TSKEYEXPIRE? , LANGUAGE, COUNTRY? ,
-                        DTPROFUP? , DTACCTUP? , FI?, SESSCOOKIE?)>
+                        DTPROFUP? , DTACCTUP? , FI?, SESSCOOKIE?, 
+                        INTU.BID?, INTU.USERID?)>
 <!--#ELEMENT SONRS #Link(COUNTRY,SIGNONMSGSRSV2)-->
 
 <!-- PIN Change request and response -->
