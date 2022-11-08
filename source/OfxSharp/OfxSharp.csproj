@@ -26,6 +26,6 @@
     <PackageReference Include="Microsoft.Xml.SgmlReader" Version="1.8.26" />
     <None Include="..\..\readme.md" Pack="true" PackagePath="\" />
     <None Include="..\..\docs\images\icon.png" Pack="true" PackagePath="\" />
-    <PackageReference Include="System.Text.Encoding.CodePages" Version="6.0.0" />
+    <PackageReference Include="System.Text.Encoding.CodePages" Version="7.0.0" />
   </ItemGroup>
 </Project>
