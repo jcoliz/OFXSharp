@@ -11,9 +11,16 @@ namespace OfxSharp
     {
         public static OfxStatementResponse FromSTMTTRNRS( XmlElement stmtrnrs )
         {
-            _ = stmtrnrs.AssertIsElement( "STMTTRNRS", parentElementName: "BANKMSGSRSV1" );
+            var stmntElement = new MessageResponseSets().knownMessageResponseSets();
+            string parentElement = null;
+            if(stmntElement.ContainsKey(stmtrnrs.ParentNode.Name))
+                parentElement = stmtrnrs.ParentNode.Name;
+            var containerElement = stmntElement[parentElement].StatementTransaction;
+            var itemElement = stmntElement[parentElement].StatementRecord;
+            var bankRequest = stmntElement[parentElement].StatementRequest;
+            _ = stmtrnrs.AssertIsElement( containerElement, parentElementName: parentElement );
 
-            XmlElement stmtrs    = stmtrnrs.RequireSingleElementChild("STMTRS");
+            XmlElement stmtrs    = stmtrnrs.RequireSingleElementChild(itemElement);
             XmlElement transList = stmtrs  .RequireSingleElementChild("BANKTRANLIST");
 
             //
@@ -24,7 +31,7 @@ namespace OfxSharp
                 trnUid           : stmtrnrs.RequireSingleElementChildText("TRNUID").RequireParseInt32(),
                 responseStatus   : OfxStatus.FromXmlElement( stmtrnrs.RequireSingleElementChild("STATUS") ),
                 defaultCurrency  : defaultCurrency,
-                accountFrom      : Account.FromXmlElementOrNull( stmtrs.GetSingleElementChildOrNull("BANKACCTFROM") ),
+                accountFrom      : Account.FromXmlElementOrNull( stmtrs.GetSingleElementChildOrNull(bankRequest) ),
                 transactionsStart: transList.RequireSingleElementChildText("DTSTART").RequireParseOfxDateTime(),
                 transactionsEnd  : transList.RequireSingleElementChildText("DTEND"  ).RequireParseOfxDateTime(),
                 transactions     : GetTransactions( transList, defaultCurrency ),
