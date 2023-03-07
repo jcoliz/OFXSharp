@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>netstandard2.0</TargetFramework>
+    <TargetFrameworks>net46</TargetFrameworks>
     <PackageId>jcoliz.OfxSharp.NetStandard</PackageId>
     <Description>OFX file parser in a .NET Standard library</Description>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
@@ -23,9 +23,10 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.Xml.SgmlReader" Version="1.8.25" />
     <None Include="..\..\readme.md" Pack="true" PackagePath="\" />
     <None Include="..\..\docs\images\icon.png" Pack="true" PackagePath="\" />
-    <PackageReference Include="System.Text.Encoding.CodePages" Version="6.0.0" />
+    <PackageReference Include="Microsoft.Xml.SgmlReader" Version="1.8.25" />
+    <PackageReference Include="System.Text.Encoding.CodePages" Version="5.0.0" />
   </ItemGroup>
+
 </Project>
