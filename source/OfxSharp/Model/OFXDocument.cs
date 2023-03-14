@@ -12,7 +12,15 @@ namespace OfxSharp
             _ = ofxElement.AssertIsElement( "OFX" );
 
             XmlElement signOnMessageResponse = ofxElement.RequireSingleElementChild("SIGNONMSGSRSV1");
-            XmlElement bankMessageResponse   = ofxElement.RequireSingleElementChild("BANKMSGSRSV1");
+            XmlElement bankMessageResponse   = null;
+            foreach( KeyValuePair<string, ResponseSet> msgsrsv in new MessageResponseSets().knownMessageResponseSets() )
+            {
+                bankMessageResponse = ofxElement.GetSingleElementChildOrNull( msgsrsv.Key );
+                if( bankMessageResponse != null ) break;
+            }
+            if (bankMessageResponse == null )
+                throw new InvalidOperationException( "This file has an uknown message response. Can not continue." );
+            //XmlElement bankMessageResponse   = ofxElement.RequireSingleElementChild("BANKMSGSRSV1");
 
             return new OfxDocument(
                 signOn    : SignOnResponse.FromXmlElement( signOnMessageResponse ),
@@ -22,11 +30,13 @@ namespace OfxSharp
 
         public static IEnumerable<OfxStatementResponse> GetStatements( XmlElement bankMessageResponse )
         {
-            _ = bankMessageResponse.AssertIsElement( "BANKMSGSRSV1" );
+            var stmntElement = new MessageResponseSets().knownMessageResponseSets();
+            if (stmntElement.ContainsKey(bankMessageResponse.Name))
+                _ = bankMessageResponse.AssertIsElement( bankMessageResponse.Name );
 
-            foreach( XmlElement stmTrnResponse in bankMessageResponse.GetChildNodes("STMTTRNRS") )
+            foreach( XmlElement stmTrnResponse in bankMessageResponse.GetChildNodes(stmntElement[bankMessageResponse.Name].StatementTransaction) )
             {
-                XmlElement stmtTrnRs = stmTrnResponse.AssertIsElement("STMTTRNRS");
+                XmlElement stmtTrnRs = stmTrnResponse.AssertIsElement(stmntElement[bankMessageResponse.Name].StatementTransaction);
 
                 yield return OfxStatementResponse.FromSTMTTRNRS( stmtTrnRs );
             }

@@ -23,6 +23,19 @@ namespace OfxSharp.NETCore.Tests
         }
 
         [Test]
+        public void Should_read_cc_statements()
+        {
+            OfxDocument ofx = OfxDocumentReader.ReadFile( filePath: "Files/creditcard.ofx");
+            ofx.HasSingleStatement( out SingleStatementOfxDocument ofxDocument ).Should().BeTrue();
+
+            Account.CreditAccount acc = ofxDocument.Account.Should().BeOfType<Account.CreditAccount>().Subject;
+            acc.AccountId.Trim().Should().Be( "creditcard78X90X1234X5765" );
+            acc.AccountType.ToString().Should().Be( "CC" );
+            
+
+        }
+
+        [Test]
         public void Should_fail_reading_not_ofx()
         {
             Assert.Throws<InvalidOperationException>( () => OfxDocumentReader.ReadFile( filePath: "Files/not-an-ofx-file.ofx"));
