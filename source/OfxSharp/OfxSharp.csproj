@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
@@ -23,7 +23,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.Xml.SgmlReader" Version="1.8.28" />
+    <PackageReference Include="Microsoft.Xml.SgmlReader" Version="1.8.29" />
     <None Include="..\..\readme.md" Pack="true" PackagePath="\" />
     <None Include="..\..\docs\images\icon.png" Pack="true" PackagePath="\" />
     <PackageReference Include="System.Text.Encoding.CodePages" Version="7.0.0" />
